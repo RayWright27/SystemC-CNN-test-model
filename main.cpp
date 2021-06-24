@@ -20,7 +20,7 @@ SC_MODULE (SYSTEM){
 		//mult0->rst(rst_sig);
 		//mult0->in1(matrix1[COLUMNS]);
 		//mult0->in2(matrix2[COLUMNS]);
-		mult0->out(result[COLUMNS]);
+		mult0->out(result);
 	}
 	//деструктор топ модуля
 	~SYSTEM(){
