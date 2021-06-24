@@ -10,7 +10,7 @@ SC_MODULE (SYSTEM){
 	//sc_signal<bool> rst_sig;//reset
 	//sc_signal<sc_int<16>> matrix1[COLUMNS];//входы пока не используем
 	//sc_signal<sc_int<16>> matrix2[COLUMNS];
-    //sc_signal<sc_int<16>> result[COLUMNS];
+    sc_signal<sc_int<16>> result;
 	sc_clock clk_sig;
 	
 	SC_CTOR (SYSTEM):clk_sig("clk_sig",10,SC_NS) //конструктор мейн модуля
@@ -34,6 +34,7 @@ SYSTEM *top = NULL;
 int sc_main(int argc, char* argv[]){
 	top=new SYSTEM("top");//выделяем память для топ модуля
 	sc_start();//начинаем симуляцию
+	
 	return 0;
 }
 

@@ -15,15 +15,19 @@ SC_MODULE(mult){
 	sc_int<16> out_val;
 	
 	//reset part
-	out.write(0);
-	wait();
-	
+	//out.write(0);
+	//wait();
+
 	while(true){
 		for (int i=0; i<5; i++){
 			out_val+=matrix1[i]*matrix2[i];
 		}
 		out.write(out_val);
+		std::cout<<out_val<<std::endl;
+		
+	sc_stop();
 	}
+	
 };//тут все вычисления
 	
 	SC_CTOR(mult){
