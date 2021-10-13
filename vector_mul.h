@@ -1,6 +1,6 @@
-#define DT_LENGTH 32//длина переменных 
-#define KK 2//длина вектора
-
+/* #define DT_LENGTH 32//длина переменных 
+#define KK 2//длина вектора  */
+#include <macro.h>
 #include <systemc.h>
 
 SC_MODULE(vector_mul) {

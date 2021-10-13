@@ -1,13 +1,14 @@
-#define DT_LENGTH 32//длина переменных 
+/* #define DT_LENGTH 32//длина переменных 
 #define M1 2//число строк КЕРНЕЛА 
 #define N1 2//число столбцов КЕРНЕЛА 
 #define M2 5//число строк ИЗОБРАЖЕНИЯ
-#define N2 5//число столбцов ИЗОБРАЖЕНИЯ
+#define N2 5//число столбцов ИЗОБРАЖЕНИЯ 
+
 #define STRIDE 1
 #define ZERO_PAD 0
 #define M3 (M2-M1+2*ZERO_PAD)/STRIDE+1//вычисляем размеры выходной матрицы
-#define N3 (N2-N1+2*ZERO_PAD)/STRIDE+1
-
+#define N3 (N2-N1+2*ZERO_PAD)/STRIDE+1 */
+#include <macro.h>
 #include <systemc.h>
 SC_MODULE(tb_driver){
 	sc_in <bool> clk;

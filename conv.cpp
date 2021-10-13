@@ -52,14 +52,16 @@ void conv::convolution(void){
 	//свёртка
 	sc_int<DT_LENGTH> result[M3][N3];
 	
-	for (int i=0; i<M3; i++){
-		for (int j=0; j<N3; j++){
+	for (int i=0; i<M3; /*i++*/){
+		for (int j=0; j<N3; /*j++*/){//STRIDE
 			for (int m=0;m<M1;m++){
 				for (int n=0;n<N1;n++){
 					result[i][j]+=image[i+m][j+n].read()*kernel[m][n].read();
 				}
 			}
+			j = j + STRIDE;
 		}
+		i = i + STRIDE;
 	}
 	/* cout<<"[отладочный вывод][convolution] результат:"<<endl;
 	for (int i = 0; i < M3; ++i) {
