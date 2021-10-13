@@ -1,7 +1,7 @@
 SYSTEM_ARCH=linux64
 #or linux for 32 bit machines
-SYSTEMC_HOME=/mnt/c/systemC/systemc-2.3.3
-LIB_DIRS=$(SYSTEMC_HOME)/lib-linux64 
+SYSTEMC_HOME=/usr/local/systemc-2.3.1/
+LIB_DIRS= $(SYSTEMC_HOME)/lib-linux64 
 
 #include directories
 INCLUDE_DIRS= -I. -I$(SYSTEMC_HOME)/include
@@ -10,7 +10,7 @@ DEPENDENCIES= Makefile $(HEADERS) $(SOURCES)
 
 LIBS= -lsystemc -lstdc++ -lm 
 
-SOURCES = main.cpp matrix_mul.h tb_driver.h tb_driver.cpp vector_mul.h vector_mul.cpp conv.h conv.cpp 
+SOURCES = main.cpp matrix_mul.h tb_driver.h tb_driver.cpp vector_mul.h vector_mul.cpp conv.h conv.cpp macro.h max_pooling.h
 
 DEPENDENCIES = \
 		Makefile \

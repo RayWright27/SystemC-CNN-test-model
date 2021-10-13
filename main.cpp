@@ -1,30 +1,33 @@
-#define DT_LENGTH 32//длина переменных 
-#define M1 2//число строк КЕРНЕЛА 
-#define N1 2//число столбцов КЕРНЕЛА 
-#define M2 5//число строк ИЗОБРАЖЕНИЯ
-#define N2 5//число столбцов ИЗОБРАЖЕНИЯ
-#define STRIDE 1
-#define ZERO_PAD 0
-#define M3 (M2-M1+2*ZERO_PAD)/STRIDE+1//вычисляем размеры выходной матрицы
-#define N3 (N2-N1+2*ZERO_PAD)/STRIDE+1
+//#define DT_LENGTH 32//длина переменных 
+//#define M1 2//число строк КЕРНЕЛА 
+//#define N1 2//число столбцов КЕРНЕЛА 
+//#define M2 5//число строк ИЗОБРАЖЕНИЯ
+//#define N2 5//число столбцов ИЗОБРАЖЕНИЯ 
+//
+//#define STRIDE 1
+//#define ZERO_PAD 0
+//#define M3 (M2-M1+2*ZERO_PAD)/STRIDE+1//вычисляем размеры выходной матрицы
+//#define N3 (N2-N1+2*ZERO_PAD)/STRIDE+1
 
 #include <systemc.h>
 
 #include "tb_driver.h"
 #include "conv.h"
+#include "max_pooling.h"
 
-int sc_main(int argc,char* argv[]) {
-    sc_core::sc_report_handler::set_actions( "/IEEE_Std_1666/deprecated", sc_core::SC_DO_NOTHING );//выяснить
-    
+int sc_main(int argc, char* argv[]) {
+    sc_core::sc_report_handler::set_actions("/IEEE_Std_1666/deprecated", sc_core::SC_DO_NOTHING);//выяснить
+
     // сигналы
     sc_clock clk("clk", 10, SC_NS);
     sc_signal<bool> rst_n;
-    sc_signal<sc_int<DT_LENGTH> > kernel_sig[M1][N1], image_sig[M2][N2];
-    sc_signal<sc_int<DT_LENGTH * 2> > convolved_mat_sig[M3][N3];
-    
+    sc_signal<sc_int<DT_LENGTH>> kernel_sig[M1][N1], image_sig[M2][N2];
+    sc_signal<sc_int<DT_LENGTH>> convolved_mat_sig[M3][N3];
+    sc_signal<sc_int<DT_LENGTH>> pooled_featuremap_sig[POOLOUT1][POOLOUT2];
+
     // инстанциируем модулм и соединяем сигналы
-	
-   tb_driver DRI_TB("DRI_TB");
+
+    tb_driver DRI_TB("DRI_TB");
     DRI_TB.clk(clk);
     DRI_TB.rst_n(rst_n);
     for (int i = 0; i < M1; ++i) {
@@ -37,7 +40,7 @@ int sc_main(int argc,char* argv[]) {
             DRI_TB.image[k][j](image_sig[k][j]);
         }
     }
-    
+
     conv DUT("DUT");
     DUT.clk(clk);
     DUT.rst_n(rst_n);
@@ -54,6 +57,20 @@ int sc_main(int argc,char* argv[]) {
     for (int i = 0; i < M3; ++i) {
         for (int j = 0; j < N3; ++j) {
             DUT.convolved_mat[i][j](convolved_mat_sig[i][j]);
+        }
+    }
+
+    max_pool DUT2("DUT2");
+    DUT2.clk(clk);
+    DUT2.rst_n(rst_n);
+    for (int i = 0; i < F_M1; i++) {
+        for (int j = 0; j < F_M2; j++){
+            DUT2.featuremap[i][j](convolved_mat_sig[i][j]);
+      }
+    }
+    for (int i = 0; i < POOLOUT1; i++) {
+        for (int j = 0; j < POOLOUT2; j++) {
+            DUT2.pooled_featuremap[i][j](pooled_featuremap_sig[i][j]);
         }
     }
 
