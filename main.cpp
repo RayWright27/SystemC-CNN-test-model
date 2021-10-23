@@ -25,7 +25,7 @@ int sc_main(int argc, char* argv[]) {
     sc_signal<sc_int<DT_LENGTH>> convolved_mat_sig[M3][N3];
     sc_signal<sc_int<DT_LENGTH>> pooled_featuremap_sig[POOLOUT1][POOLOUT2];
 
-    // инстанциируем модулм и соединяем сигналы
+    // инстанциируем модули и соединяем сигналы
 
     tb_driver DRI_TB("DRI_TB");
     DRI_TB.clk(clk);
