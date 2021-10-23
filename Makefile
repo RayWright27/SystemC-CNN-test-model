@@ -10,7 +10,7 @@ DEPENDENCIES= Makefile $(HEADERS) $(SOURCES)
 
 LIBS= -lsystemc -lstdc++ -lm 
 
-SOURCES = main.cpp matrix_mul.h tb_driver.h tb_driver.cpp vector_mul.h vector_mul.cpp conv.h conv.cpp macro.h max_pooling.h
+SOURCES = main.cpp matrix_mul.h tb_driver.h tb_driver.cpp vector_mul.h vector_mul.cpp conv.h conv.cpp macro.h max_pooling.h ReLU.h
 
 DEPENDENCIES = \
 		Makefile \

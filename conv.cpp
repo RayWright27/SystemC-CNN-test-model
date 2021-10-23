@@ -1,5 +1,5 @@
 #include "conv.h"
-
+#include "ReLU.h"
 void conv::convolution(void){
 	/* sc_int<DT_LENGTH> kernel_padded[M3][N3];
     //ZERO-PADDING кернела
@@ -75,7 +75,7 @@ void conv::convolution(void){
 	//конечный вывод из функции и модуля conv
 	for (int i=0;i<M3;i++){
 		for (int k=0;k<N3;k++){
-			convolved_mat[i][k].write(result[i][k]);
+			convolved_mat[i][k].write(ReLU(result[i][k]));//применеяем ReLU
 		}
 	}
 			

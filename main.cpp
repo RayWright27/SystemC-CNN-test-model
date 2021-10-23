@@ -76,13 +76,22 @@ int sc_main(int argc, char* argv[]) {
 
  
     //начинаем симуляцию
-    sc_start(1, SC_NS);
+    sc_start(5, SC_NS);
     
     //вывод результата в консоль
 	cout<<"результат свёртки: "<<endl;
     for (int i = 0; i < M3; ++i) {
         for (int j = 0; j < N3; ++j) {
             cout << convolved_mat_sig[i][j] << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+
+    cout << "результат max_pool: " << endl;
+    for (int i = 0; i < POOLOUT1; ++i) {
+        for (int j = 0; j < POOLOUT2; ++j) {
+            cout << pooled_featuremap_sig[i][j] << " ";
         }
         cout << endl;
     }

@@ -19,7 +19,7 @@
 #define P2 2//число столбцов КЕРНЕЛА2(POOL)
 #define F_M1 M3//строки входной на POOL
 #define F_M2 N3//столбцы входной на POOL 
-#define POOL_STRIDE 2
+#define POOL_STRIDE 2// !! не нужен ??
 //метод почти такой же как и для conv
 #define POOLOUT1 (F_M1-P1)/POOL_STRIDE +1
 #define POOLOUT2 (F_M2-P2)/POOL_STRIDE +1
