@@ -2,7 +2,7 @@
 #define MM 2//число строк первой матрицы
 #define NN 2//число столбцов второй матрицы 
 #define KK 2//длина вектора (число столбцов первой матрицы и число строк второй) */
-#include<macro.h>
+#include <macro.h>
 #include <systemc.h>
 #include <sstream>
 

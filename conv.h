@@ -12,11 +12,11 @@
 
 #include "matrix_mul.h"
 
-SC_MODULE(conv){
+SC_MODULE(conv) {
 	//порты
 	sc_in<bool> clk, rst_n;
-	sc_in<sc_int<DT_LENGTH>> kernel[M1][N1], image[M2][N2];
-	sc_out<sc_int<DT_LENGTH>> convolved_mat[M3][N3];
+	sc_in<sc_int<DT_LENGTH>> kernel[M1][N1][L1], image[M2][N2];
+	sc_out<sc_int<DT_LENGTH>> convolved_mat[M3][N3][L3];
 	
 	//matrix_mul *max_mul[MM][NN];
 	

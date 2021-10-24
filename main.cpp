@@ -21,18 +21,21 @@ int sc_main(int argc, char* argv[]) {
     // сигналы
     sc_clock clk("clk", 10, SC_NS);
     sc_signal<bool> rst_n;
-    sc_signal<sc_int<DT_LENGTH>> kernel_sig[M1][N1], image_sig[M2][N2];
-    sc_signal<sc_int<DT_LENGTH>> convolved_mat_sig[M3][N3];
-    sc_signal<sc_int<DT_LENGTH>> pooled_featuremap_sig[POOLOUT1][POOLOUT2];
+    sc_signal<sc_int<DT_LENGTH>> kernel_sig[M1][N1][L1], image_sig[M2][N2];
+    sc_signal<sc_int<DT_LENGTH>> convolved_mat_sig[M3][N3][L3];
+    sc_signal<sc_int<DT_LENGTH>> pooled_featuremap_sig[POOLOUT1][POOLOUT2][POOLOUT3];
 
     // инстанциируем модули и соединяем сигналы
 
     tb_driver DRI_TB("DRI_TB");
     DRI_TB.clk(clk);
     DRI_TB.rst_n(rst_n);
+    for (int j = 0; j < L1; ++j) {
     for (int i = 0; i < M1; ++i) {
         for (int k = 0; k < N1; ++k) {
-            DRI_TB.kernel[i][k](kernel_sig[i][k]);
+            
+                DRI_TB.kernel[i][k][j](kernel_sig[i][k][j]);
+            }
         }
     }
     for (int k = 0; k < M2; ++k) {
@@ -44,9 +47,12 @@ int sc_main(int argc, char* argv[]) {
     conv DUT("DUT");
     DUT.clk(clk);
     DUT.rst_n(rst_n);
+    for (int j = 0; j < L1; ++j) {
     for (int i = 0; i < M1; ++i) {
         for (int k = 0; k < N1; ++k) {
-            DUT.kernel[i][k](kernel_sig[i][k]);//сигналы же внутри, снаружи порты
+           
+                DUT.kernel[i][k][j](kernel_sig[i][k][j]);//сигналы же внутри, снаружи порты
+            }
         }
     }
     for (int k = 0; k < M2; ++k) {
@@ -54,25 +60,33 @@ int sc_main(int argc, char* argv[]) {
             DUT.image[k][j](image_sig[k][j]);
         }
     }
+    for (int j = 0; j < N3; ++j) {
     for (int i = 0; i < M3; ++i) {
-        for (int j = 0; j < N3; ++j) {
-            DUT.convolved_mat[i][j](convolved_mat_sig[i][j]);
+        for (int k = 0; k < N1; ++k) {
+            
+                DUT.convolved_mat[i][k][j](convolved_mat_sig[i][k][j]);
+            }
         }
     }
 
-    max_pool DUT2("DUT2");
+  /*  max_pool DUT2("DUT2");
     DUT2.clk(clk);
     DUT2.rst_n(rst_n);
+    for (int k = 0; k < F_M3; k++) {
     for (int i = 0; i < F_M1; i++) {
         for (int j = 0; j < F_M2; j++){
-            DUT2.featuremap[i][j](convolved_mat_sig[i][j]);
+           
+                DUT2.featuremap[i][j][k](convolved_mat_sig[i][j][k]);
+            }
       }
     }
     for (int i = 0; i < POOLOUT1; i++) {
         for (int j = 0; j < POOLOUT2; j++) {
-            DUT2.pooled_featuremap[i][j](pooled_featuremap_sig[i][j]);
+            for (int k = 0; k < POOLOUT3; k++) {
+                DUT2.pooled_featuremap[i][j][k](pooled_featuremap_sig[i][j][k]);
+            }
         }
-    }
+    }*/
 
  
     //начинаем симуляцию
