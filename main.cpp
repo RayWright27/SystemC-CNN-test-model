@@ -1,16 +1,4 @@
-//#define DT_LENGTH 32//длина переменных 
-//#define M1 2//число строк КЕРНЕЛА 
-//#define N1 2//число столбцов КЕРНЕЛА 
-//#define M2 5//число строк ИЗОБРАЖЕНИЯ
-//#define N2 5//число столбцов ИЗОБРАЖЕНИЯ 
-//
-//#define STRIDE 1
-//#define ZERO_PAD 0
-//#define M3 (M2-M1+2*ZERO_PAD)/STRIDE+1//вычисляем размеры выходной матрицы
-//#define N3 (N2-N1+2*ZERO_PAD)/STRIDE+1
-
 #include <systemc.h>
-
 #include "tb_driver.h"
 #include "conv.h"
 #include "max_pooling.h"
@@ -21,72 +9,51 @@ int sc_main(int argc, char* argv[]) {
     // сигналы
     sc_clock clk("clk", 10, SC_NS);
     sc_signal<bool> rst_n;
-    sc_signal<sc_int<DT_LENGTH>> kernel_sig[M1][N1][L1], image_sig[M2][N2];
-    sc_signal<sc_int<DT_LENGTH>> convolved_mat_sig[M3][N3][L3];
-    sc_signal<sc_int<DT_LENGTH>> pooled_featuremap_sig[POOLOUT1][POOLOUT2][POOLOUT3];
+    sc_signal<sc_int<DT_LENGTH>> kernel_sig[KER];
+    sc_signal<sc_int<DT_LENGTH>> image_sig[IMG];
+    //sc_vector<sc_signal<sc_int<DT_LENGTH>>> kernel_sig_v{ "kernel_sig_v", KER };
+   // sc_vector<sc_signal<sc_int<DT_LENGTH>>> image_sig_v{ "image_sig_v", IMG };
+    sc_signal<sc_int<DT_LENGTH>> convolved_mat_sig[CONV_ED];
+    sc_signal<sc_int<DT_LENGTH>> pooled_featuremap_sig[POOL_ED];
 
     // инстанциируем модули и соединяем сигналы
 
     tb_driver DRI_TB("DRI_TB");
     DRI_TB.clk(clk);
     DRI_TB.rst_n(rst_n);
-    for (int j = 0; j < L1; ++j) {
-    for (int i = 0; i < M1; ++i) {
-        for (int k = 0; k < N1; ++k) {
-            
-                DRI_TB.kernel[i][k][j](kernel_sig[i][k][j]);
-            }
-        }
+    for (int j = 0; j < KER; ++j) {
+            DRI_TB.kernel[j](kernel_sig[j]);
     }
-    for (int k = 0; k < M2; ++k) {
-        for (int j = 0; j < N2; ++j) {
-            DRI_TB.image[k][j](image_sig[k][j]);
-        }
+ //   DRI_TB.kernelv(kernel_sig_v);
+
+    for (int k = 0; k < IMG; ++k) {
+            DRI_TB.image[k](image_sig[k]);
     }
+   // DRI_TB.imagev(image_sig_v);
 
     conv DUT("DUT");
     DUT.clk(clk);
     DUT.rst_n(rst_n);
-    for (int j = 0; j < L1; ++j) {
-    for (int i = 0; i < M1; ++i) {
-        for (int k = 0; k < N1; ++k) {
-           
-                DUT.kernel[i][k][j](kernel_sig[i][k][j]);//сигналы же внутри, снаружи порты
-            }
-        }
+    for (int j = 0; j < KER; ++j) {
+        DUT.kernel[j](kernel_sig[j]);//сигналы же внутри, снаружи порты
     }
-    for (int k = 0; k < M2; ++k) {
-        for (int j = 0; j < N2; ++j) {
-            DUT.image[k][j](image_sig[k][j]);
-        }
+      
+    for (int k = 0; k <IMG; ++k) {
+        DUT.image[k](image_sig[k]);
     }
-    for (int j = 0; j < N3; ++j) {
-    for (int i = 0; i < M3; ++i) {
-        for (int k = 0; k < N1; ++k) {
-            
-                DUT.convolved_mat[i][k][j](convolved_mat_sig[i][k][j]);
-            }
-        }
+    for (int j = 0; j < CONV_ED; ++j) {
+        DUT.convolved_mat[j](convolved_mat_sig[j]);        
     }
-
-  /*  max_pool DUT2("DUT2");
+    
+    max_pool DUT2("DUT2");
     DUT2.clk(clk);
     DUT2.rst_n(rst_n);
-    for (int k = 0; k < F_M3; k++) {
-    for (int i = 0; i < F_M1; i++) {
-        for (int j = 0; j < F_M2; j++){
-           
-                DUT2.featuremap[i][j][k](convolved_mat_sig[i][j][k]);
-            }
-      }
+    for (int k = 0; k < CONV_ED; k++) {         
+                DUT2.featuremap[k](convolved_mat_sig[k]);
     }
-    for (int i = 0; i < POOLOUT1; i++) {
-        for (int j = 0; j < POOLOUT2; j++) {
-            for (int k = 0; k < POOLOUT3; k++) {
-                DUT2.pooled_featuremap[i][j][k](pooled_featuremap_sig[i][j][k]);
-            }
-        }
-    }*/
+    for (int i = 0; i < POOL_ED; i++) {
+        DUT2.pooled_featuremap[i](pooled_featuremap_sig[i]);        
+    }
 
  
     //начинаем симуляцию
@@ -94,9 +61,9 @@ int sc_main(int argc, char* argv[]) {
     
     //вывод результата в консоль
 	cout<<"результат свёртки: "<<endl;
-    for (int i = 0; i < M3; ++i) {
-        for (int j = 0; j < N3; ++j) {
-            cout << convolved_mat_sig[i][j] << " ";
+    for (int i = 0; i < M3; i++) {
+        for (int j = i*M3; j < (i+1)*M3; ++j) {
+            cout << convolved_mat_sig[j] << " ";
         }
         cout << endl;
     }
@@ -104,8 +71,8 @@ int sc_main(int argc, char* argv[]) {
 
     cout << "результат max_pool: " << endl;
     for (int i = 0; i < POOLOUT1; ++i) {
-        for (int j = 0; j < POOLOUT2; ++j) {
-            cout << pooled_featuremap_sig[i][j] << " ";
+        for (int j = i*POOLOUT2; j < (i+1)*POOLOUT2; ++j) {
+            cout << pooled_featuremap_sig[j] << " ";
         }
         cout << endl;
     }

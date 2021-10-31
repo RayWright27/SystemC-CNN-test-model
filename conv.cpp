@@ -10,12 +10,14 @@ void conv::convolution(void) {
 		}
 	}  */
 	cout << "[отладочный вывод][convolution] кернел:" << endl;
-	for (int i = 0; i < M1; ++i) {
-		for (int k = 0; k < N1; ++k) {
-			cout << kernel[i][k] << " ";
+	for (int k = 0; k < N1; k++) {
+		for (int i = k*M1; i < (k+1)*M1; ++i) {
+			cout << kernel[i] << " ";
 		}
 		cout << endl;
 	}
+
+	cout << endl;
 	//нормализация кернела
 	/* sc_int<16> k_sum;
 	for (int i = 0; i < M1; ++i) {
@@ -42,47 +44,82 @@ void conv::convolution(void) {
 	} */
 
 	cout << "[отладочный вывод][convolution] изображение:" << endl;
-	for (int i = 0; i < M2; ++i) {
-		for (int k = 0; k < N2; ++k) {
-			cout << image[i][k] << " ";
+	for (int h = 0; h < M2; h++) {
+		for (int g = h*N2; g < (h+1)*N2; ++g) {
+			cout << image[g] << " ";
 		}
 		cout << endl;
 	}
+	//--------------------------------------------------------------------
+	//2D свёртка как 1D свёртка:
+	//zero_pad to equal dimensions->reshape+truncate->1D Conv->reshape ?????
+	//--------------------------------------------------------------------
+	//zero-padding векторов
+	//КЕРНЕЛ
+	//создаём вектор для padded kernel
+	sc_int<DT_LENGTH> kernel_padded[784];
+	for (int p = 0; p < 784; p++) {
+		kernel_padded[p] = 0;
+	}
+
+	sc_int<16> chunk_cnt = 0;
+	sc_int<16> chunk_max = M1;//число строк кернела
+	sc_int<16> addition = 0;  
+	for (int i = 0; i < 784;) {
+		for (int k = addition; k < N1+addition; k++) {//(колво столбцов кернела+аддишн)
+			kernel_padded[i] = kernel[k];// КУДА ДЕВАЕТСЯ kernel[1]??????
+			i++;
+		}
+		i=i+ (M2-M1);//
+		chunk_cnt++;
+		addition = N1* chunk_cnt;//число столбоцов кернела (сколько нужно элементов между паддингами)
+		if (chunk_cnt == chunk_max) {
+			break;//i = 784;
+		}
+	}
+	cout << "[отладочный вывод][convolution] Kernel_padded:" << endl;
+	//for(int i=0;i<676;i++){ 
+	for (int k = 0; k < M2; k++) {
+		for (int i = k * N2; i < (k + 1) * N2; ++i) {
+			cout << kernel_padded[i] << " ";
+		}
+		cout << endl;
+	}
+	//truncation
+	const int last_elem = (M1+(M2-M1))*N1- (M2 - M1);// последний элемент до которого нужно truncate
+
+	sc_int<DT_LENGTH> kernel_padded_truncated[last_elem] = { 0 };
+	for (int i = 0; i < last_elem; i++) {
+		kernel_padded_truncated[i] = kernel_padded[i];
+	}
+	cout << "[отладочный вывод][convolution] Kernel_padded_truncated:" << endl;
+	for (int i : kernel_padded_truncated) //альтернативный вывод
+		cout << i << " ";
+	cout << endl;
 
 	//свёртка
-	sc_int<DT_LENGTH> result[M3][N3][L3];
+	sc_int<DT_LENGTH> result[CONV_ED];
 
-	for (int k = 0; k < L1; k++) {//число кернелов и выходных матрицы соотв-но
-		for (int i = 0; i < M3; i++) {
-			for (int j = 0; j < N3; j++) {//STRIDE
-				for (int m = 0; m < M1; m++) {
-					for (int n = 0; n < N1; n++) {
-						result[i][j][k] += image[i + m][j + n].read() * kernel[m][n][k].read();
-					}
-				}
-				//j = j + STRIDE;
-			}
-			//i = i + STRIDE;
+	for (int i = 0; i < CONV_ED; i++) {
+		for (int m = 0; m < last_elem; m++) {
+			result[i] += image[i + m].read() * kernel_padded_truncated[m];
 		}
+		result[i] = ReLU(result[i]);
 	}
-    
-	/* cout<<"[отладочный вывод][convolution] результат:"<<endl;
-	for (int i = 0; i < M3; ++i) {
-        for (int k = 0; k < N3; ++k) {
-            cout << result[i][k] << " ";
+
+	/*cout<<"[отладочный вывод][convolution] результат:"<<endl;
+	for (int k = 0; k < M3; k++) {
+        for (int i = k*N3; i < (k+1)*N3; i++) {
+            cout << result[i] << " ";
         }
         cout << endl;
-    } */
-	cout<<endl;
+    } 
+	cout<<endl;*/
 
 	//конечный вывод из функции и модуля conv
-	for (int k = 0; k < L3; k++) {
-	for (int i = 0; i < M3; i++) {
-		for (int j = 0; j < N3; j++) {
-			
-				convolved_mat[i][j][k].write(ReLU(result[i][j][k]));//применеяем ReLU
-			}
-		}
+	for (int k = 0; k < CONV_ED; k++) {
+		convolved_mat[k].write(result[k]);//применеяем ReLU
 	}
-			
+
+
 };
