@@ -13,7 +13,7 @@
 SC_MODULE(tb_driver){
 	sc_in <bool> clk;
     sc_out<bool> rst_n;
-    sc_out<sc_int<DT_LENGTH> > kernel[M1][N1][L1], image[M2][N2];
+    sc_out<sc_int<DT_LENGTH> > kernel[KER], image[IMG];
 
     void generate_input(void);
 	void generate_reset(void);
