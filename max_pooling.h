@@ -3,8 +3,8 @@
 
 SC_MODULE(max_pool) {
 	sc_in<bool> clk, rst_n;
-	sc_in<sc_int<DT_LENGTH>> featuremap[F_M1][F_M2];
-	sc_out<sc_int<DT_LENGTH>> pooled_featuremap[POOLOUT1][POOLOUT2];
+	sc_in<sc_int<DT_LENGTH>> featuremap[CONV_ED];
+	sc_out<sc_int<DT_LENGTH>> pooled_featuremap[POOL_ED];
 
 	SC_CTOR(max_pool) {
 		SC_METHOD(max_pooling);
@@ -22,40 +22,75 @@ SC_MODULE(max_pool) {
 			else if (a = b) {
 				return a;
 			}
+			return 0;
 	}
 
 	void max_pooling(void) {
-
-		
-		cout << "[отладочный вывод][max_pooling] размеры кернела:"<< " P1 = " << P1<< " P2 = " << P2<< endl;
-
-		cout << "размеры выходной матрицы: " << endl;
-		cout << "POOLOUT1= " << POOLOUT2 << " POOLOUT2= " << POOLOUT2 << " " << endl;
-		cout << endl;
-		// сама операция
-		sc_int<DT_LENGTH> result[POOLOUT1][POOLOUT2];
-		for (int i = 0; i < POOLOUT1; i++) {
-			for (int j = 0; j < POOLOUT2; j++) {
-				result[i][j] = 0;
+		sc_int<DT_LENGTH> featuremap_in[L3][M3][N3];
+		for (int k = 0; k < L3; k++) {
+			for (int i = 0; i < M3; i++) {
+				for (int j = 0; j < N3; j++) {
+					featuremap_in[k][i][j]=featuremap[k * N3 * M3 + i * N3 + j].read();//применеяем ReLU
+				}
 			}
 		}
+		for (int i = 0; i < L3; i++) {
+			for (int j = 0; j < M3; j++) {
+				for (int k = 0; k < N3; k++) {
+					cout << featuremap_in[i][j][k] << " ";
+				}
+				cout << endl;
+			}
+			cout << "_________" << endl;
+		}
+		cout << endl;
+		
+		cout << "[отладочный вывод][max_pooling] размеры кернела:"<< " P1 = " << P1<< " P2 = " << P2<< endl;
+		cout << "размеры выходной матрицы: " << endl;
+		cout << "POOLOUT1= " << POOLOUT1 << " POOLOUT2= " << POOLOUT2 << " POOLOUT3= " << POOLOUT3<< endl;
+		cout << endl;
+		// сама операция
 
-		for (int i = 0; i < POOLOUT1; i++) {//сдвиг кернела в матрице признаков
-				for (int j = 0; j < POOLOUT2;j++) {
-					for (int m = 0; m < P1;m++) {
-						for (int n = 0; n < P2;n++) {
-							sc_int<DT_LENGTH> value = featuremap[i * P1 + m][j * P2 + n];
-							result[i][j] = maximum(result[i][j],value);
+		sc_int<DT_LENGTH> result[POOLOUT3][POOLOUT1][POOLOUT2];
+
+		for (int k = 0; k < POOLOUT3; k++) {
+			for (int i = 0; i < POOLOUT1; i++) {//сдвиг кернела в матрице признаков
+				for (int j = 0; j < POOLOUT2; j++) {
+					for (int m = 0; m < P1; m++) {
+						for (int n = 0; n < P2; n++) {
+							sc_int<DT_LENGTH> value = featuremap_in[k][i * P1 + m][j * P2 + n];
+							result[k][i][j] = maximum(result[k][i][j], value);
 						}
 						sc_int<DT_LENGTH> value = 0;
 					}
 				}
 			}
+		}
 
-		for (int i = 0; i < POOLOUT1; i++) {
-			for (int k = 0; k < POOLOUT2; k++) {
-				pooled_featuremap[i][k].write(result[i][k]);
+		cout << "[отладочный вывод][max_pooling] результат" << endl;
+		for (int k = 0; k < POOLOUT3; k++) {
+			for (int i = 0; i < POOLOUT1; i++) {
+				for (int j = 0; j < POOLOUT2; j++) {
+					cout << result[k][i][j]<<" ";
+				}
+				cout << endl;
+			}
+			cout << "_________" << endl;
+		}
+		cout << endl;
+
+		sc_int<DT_LENGTH> TEST[POOL_ED];
+
+		for (int k = 0; k < POOLOUT3; k++) {
+			for (int i = 0; i < POOLOUT1; i++) {
+				for (int j = 0; j < POOLOUT2; j++) {
+					pooled_featuremap[k * POOLOUT1 * POOLOUT2 + i * POOLOUT1 + j]=result[k][i][j];
+				}
 			}
 		}
+		/*for (int j = 0; j < POOL_ED; j++) {
+			cout << pooled_featuremap[j] << " ";
+		}
+		cout << endl;*/
 	}
 };

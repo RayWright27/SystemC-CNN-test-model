@@ -1,19 +1,9 @@
-//#define DT_LENGTH 32//длина переменных 
-//#define M1 2//число строк КЕРНЕЛА 
-//#define N1 2//число столбцов КЕРНЕЛА 
-//#define M2 5//число строк ИЗОБРАЖЕНИЯ
-//#define N2 5//число столбцов ИЗОБРАЖЕНИЯ 
-//
-//#define STRIDE 1
-//#define ZERO_PAD 0
-//#define M3 (M2-M1+2*ZERO_PAD)/STRIDE+1//вычисляем размеры выходной матрицы
-//#define N3 (N2-N1+2*ZERO_PAD)/STRIDE+1
-
 #include <systemc.h>
 
 #include "tb_driver.h"
 #include "conv.h"
 #include "max_pooling.h"
+#include "dense.h"
 
 int sc_main(int argc, char* argv[]) {
     sc_core::sc_report_handler::set_actions("/IEEE_Std_1666/deprecated", sc_core::SC_DO_NOTHING);//выяснить
@@ -21,80 +11,64 @@ int sc_main(int argc, char* argv[]) {
     // сигналы
     sc_clock clk("clk", 10, SC_NS);
     sc_signal<bool> rst_n;
-    sc_signal<sc_int<DT_LENGTH>> kernel_sig[M1][N1], image_sig[M2][N2];
-    sc_signal<sc_int<DT_LENGTH>> convolved_mat_sig[M3][N3];
-    sc_signal<sc_int<DT_LENGTH>> pooled_featuremap_sig[POOLOUT1][POOLOUT2];
+    sc_signal<sc_int<DT_LENGTH>> kernel_sig[KER], image_sig[IMG];
+    sc_signal<sc_int<DT_LENGTH>> convolved_mat_sig[CONV_ED];
+    sc_signal<sc_int<DT_LENGTH>> pooled_featuremap_sig[POOL_ED];
+    sc_signal<sc_int<DT_LENGTH>> output_sig[DENSE_KER2];
 
     // инстанциируем модули и соединяем сигналы
 
     tb_driver DRI_TB("DRI_TB");
     DRI_TB.clk(clk);
     DRI_TB.rst_n(rst_n);
-    for (int i = 0; i < M1; ++i) {
-        for (int k = 0; k < N1; ++k) {
-            DRI_TB.kernel[i][k](kernel_sig[i][k]);
-        }
+  
+    for (int i = 0; i < KER; ++i) {
+        DRI_TB.kernel[i](kernel_sig[i]);   
     }
-    for (int k = 0; k < M2; ++k) {
-        for (int j = 0; j < N2; ++j) {
-            DRI_TB.image[k][j](image_sig[k][j]);
-        }
+    for (int k = 0; k < IMG; ++k) {
+        DRI_TB.image[k](image_sig[k]);
     }
 
     conv DUT("DUT");
     DUT.clk(clk);
     DUT.rst_n(rst_n);
-    for (int i = 0; i < M1; ++i) {
-        for (int k = 0; k < N1; ++k) {
-            DUT.kernel[i][k](kernel_sig[i][k]);//сигналы же внутри, снаружи порты
-        }
+    for (int j = 0; j < KER; ++j) {
+                DUT.kernel[j](kernel_sig[j]);//сигналы же внутри, снаружи порты
     }
-    for (int k = 0; k < M2; ++k) {
-        for (int j = 0; j < N2; ++j) {
-            DUT.image[k][j](image_sig[k][j]);
-        }
+    for (int k = 0; k < IMG; ++k) {
+            DUT.image[k](image_sig[k]);
     }
-    for (int i = 0; i < M3; ++i) {
-        for (int j = 0; j < N3; ++j) {
-            DUT.convolved_mat[i][j](convolved_mat_sig[i][j]);
-        }
+    for (int j = 0; j < CONV_ED; ++j) {
+                DUT.convolved_mat[j](convolved_mat_sig[j]);
     }
 
     max_pool DUT2("DUT2");
     DUT2.clk(clk);
     DUT2.rst_n(rst_n);
-    for (int i = 0; i < F_M1; i++) {
-        for (int j = 0; j < F_M2; j++){
-            DUT2.featuremap[i][j](convolved_mat_sig[i][j]);
-      }
+    for (int k = 0; k < CONV_ED; k++) {
+        DUT2.featuremap[k](convolved_mat_sig[k]);
     }
-    for (int i = 0; i < POOLOUT1; i++) {
-        for (int j = 0; j < POOLOUT2; j++) {
-            DUT2.pooled_featuremap[i][j](pooled_featuremap_sig[i][j]);
-        }
+    for (int i = 0; i < POOL_ED; i++) {
+        DUT2.pooled_featuremap[i](pooled_featuremap_sig[i]);
     }
 
- 
+    dense DUT3("DUT3");
+    DUT3.clk(clk);
+    DUT3.rst_n(rst_n);
+    for (int k = 0; k < POOL_ED; k++) {
+        DUT3.dense_input[k](pooled_featuremap_sig[k]);
+    }
+    for (int i = 0; i < DENSE_KER2; i++) {
+        DUT3.dense_output[i](output_sig[i]);
+    }
+
     //начинаем симуляцию
-    sc_start(5, SC_NS);
-    
-    //вывод результата в консоль
-	cout<<"результат свёртки: "<<endl;
-    for (int i = 0; i < M3; ++i) {
-        for (int j = 0; j < N3; ++j) {
-            cout << convolved_mat_sig[i][j] << " ";
-        }
-        cout << endl;
+    sc_start(15, SC_NS);
+   /* cout << "результат conv " << endl;
+    for (int i = 0; i < CONV_ED; i++) {
+        cout << convolved_mat_sig[i] << " ";
     }
-    cout << endl;
-
-    cout << "результат max_pool: " << endl;
-    for (int i = 0; i < POOLOUT1; ++i) {
-        for (int j = 0; j < POOLOUT2; ++j) {
-            cout << pooled_featuremap_sig[i][j] << " ";
-        }
-        cout << endl;
-    }
+    cout << endl;*/
 
     return 0;
 }
