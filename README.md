@@ -5,4 +5,9 @@ This model serves as a testing ground for making Keras models in SystemC and con
 
 ![Alt Text](https://github.com/RayWright27/SystemC-CNN-test-model/blob/1e89d88ead66ca3799dc5a2010b4b3c024e8234c/model%20structure.png?raw=true)
 
+tb_driver.h contains image of number 6 in form of grayscale values matix and arbitrary kernel.
+All interfaces are 1d vectors, so on inputs/output ports of some modules 1d vectors transform into 2d matrices and vice versa.
+
+
+
 The model **does not** contain kernel and bias values from the original model.
