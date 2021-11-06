@@ -8,6 +8,6 @@ This model serves as a testing ground for making Keras models in SystemC and con
 tb_driver.h contains image of number 6 in form of grayscale values matix and arbitrary kernel.
 All interfaces are 1d vectors, so on inputs/output ports of some modules 1d vectors transform into 2d matrices and vice versa.
 
-Convolution is realised with element-wise, for-loop multiplication of kernel and image instead of multiplication of matricies using Toeplic matricies. This is the issue to be solved.
+Convolution is realised with element-wise, for-loop multiplication of kernel and image instead of multiplication of matricies using Toepliz matricies. This is the issue to be solved.
 
 The model **does not** contain kernel and bias values from the original model.
