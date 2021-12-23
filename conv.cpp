@@ -82,6 +82,7 @@ void conv::convolution(void) {
 					}
 				}
 				result[k][i][j] += biases[k];
+
 			}
 		}
 	}
@@ -105,8 +106,9 @@ void conv::convolution(void) {
 		for (int i = 0; i < M3; i++) {
 			for (int j = 0; j < N3; j++) {
 				convolved_mat[k*N3*M3+i*N3+j].write(result[k][i][j]); //равно и .write() дают одно и тоже 
+				
 			}
 		}
 	}
-	
+	cout<<"@" << sc_time_stamp() <<" convolution layer calculated"<<endl;
 };

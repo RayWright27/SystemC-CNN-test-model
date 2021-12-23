@@ -54,5 +54,6 @@ SC_MODULE(dense) {
 			cout << result[i] << " ";
 		}
 		cout << endl;
+		cout<<"@" << sc_time_stamp() <<" dense layer calculated"<<endl;
 	}
 };

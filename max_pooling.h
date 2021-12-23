@@ -62,6 +62,7 @@ SC_MODULE(max_pool) {
 							result[k][i][j] = maximum(result[k][i][j], value);
 						}
 						sc_int<DT_LENGTH> value = 0;
+						
 					}
 				}
 			}
@@ -88,6 +89,7 @@ SC_MODULE(max_pool) {
 				}
 			}
 		}
+		cout<<"@" << sc_time_stamp() <<" pooling layer value calculated"<<endl;
 		/*for (int j = 0; j < POOL_ED; j++) {
 			cout << pooled_featuremap[j] << " ";
 		}

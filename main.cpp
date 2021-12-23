@@ -9,7 +9,7 @@ int sc_main(int argc, char* argv[]) {
     sc_core::sc_report_handler::set_actions("/IEEE_Std_1666/deprecated", sc_core::SC_DO_NOTHING);//выяснить
 
     // сигналы
-    sc_clock clk("clk", 10, SC_NS);
+    sc_signal<bool> clk;//sc_clock clk("clk", 10, SC_NS);
     sc_signal<bool> rst_n;
     sc_signal<sc_int<DT_LENGTH>> kernel_sig[KER], image_sig[IMG];
     sc_signal<sc_int<DT_LENGTH>> convolved_mat_sig[CONV_ED];
@@ -63,7 +63,24 @@ int sc_main(int argc, char* argv[]) {
     }
 
     //начинаем симуляцию
-    sc_start(15, SC_NS);
+    sc_start(1, SC_NS);
+    rst_n = 0;    // Assert the reset
+    cout << "@" << sc_time_stamp() <<" Asserting reset\n" << endl;
+    for (int i=0;i<1;i++) {
+        clk = 0; 
+        sc_start(1, SC_NS);
+        clk = 1; 
+        sc_start(1, SC_NS);
+    }
+    rst_n = 1;    // De-assert the reset
+    cout << "@" << sc_time_stamp() <<" De-Asserting reset\n" << endl;
+    for (int i=0;i<50;i++) {
+        clk = 0; 
+        sc_start(1, SC_NS);
+        clk = 1; 
+        sc_start(1, SC_NS);
+    }
+      sc_stop();
    /* cout << "результат conv " << endl;
     for (int i = 0; i < CONV_ED; i++) {
         cout << convolved_mat_sig[i] << " ";
