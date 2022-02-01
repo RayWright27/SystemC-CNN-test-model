@@ -6,8 +6,8 @@
 SC_MODULE(vector_mul) {
     // обозначение портов
     sc_in<bool> clk, rst_n;
-    sc_in<sc_int<DT_LENGTH>> vec1[KK], vec2[KK];
-    sc_out<sc_int<DT_LENGTH * 2>> vec_o;//
+    sc_in<double> vec1[KK], vec2[KK];
+    sc_out<double> vec_o;//
     
     void compute_vector_mul(void);
     

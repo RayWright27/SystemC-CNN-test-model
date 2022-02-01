@@ -3,16 +3,16 @@
 SC_MODULE(mult){
 	sc_in<bool> clk;
 	//sc_in<bool> rst;
-	//sc_in<sc_int<16>> in1;
-	//sc_in<sc_int<16>> in2;
-	sc_out<sc_int<16>> out;
+	//sc_in<double<16>> in1;
+	//sc_in<double<16>> in2;
+	sc_out<double<16>> out;
 	//тестовые матрицы
     sc_uint<8> matrix1[5]={1, 2, 3, 4, 5};
     sc_uint<8> matrix2[5]={6, 7, 8, 9, 10};
 
 	void mult_main(void){
 	
-	sc_int<16> out_val;
+	double<16> out_val;
 	
 	//reset part
 	//out.write(0);
@@ -38,7 +38,7 @@ SC_MODULE(mult){
 
 /*void mult::mult_main(void){
 	
-	sc_int<16> out_val;
+	double<16> out_val;
 	
 	//reset part
 	out.write(0);

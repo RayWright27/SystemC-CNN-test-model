@@ -1,6 +1,6 @@
 #include <systemc.h>
 #include "macro.h"
-sc_int<DT_LENGTH> ReLU(sc_int<DT_LENGTH> a) {
+double ReLU(double a) {
 	if (a <= 0) {
 		return 0;
 	}

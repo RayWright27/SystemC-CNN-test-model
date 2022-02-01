@@ -10,8 +10,8 @@
 
 SC_MODULE(matrix_mul) {
     sc_in<bool> clk, rst_n;
-    sc_in<sc_int<DT_LENGTH> > matA[MM][KK], matB[KK][NN];
-    sc_out<sc_int<DT_LENGTH * 2> > matC[MM][NN];
+    sc_in<double> matA[MM][KK], matB[KK][NN];
+    sc_out<double> matC[MM][NN];
 
     vector_mul *mul[MM][NN];
 

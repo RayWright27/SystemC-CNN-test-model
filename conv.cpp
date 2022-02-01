@@ -1,8 +1,7 @@
 #include "conv.h"
 #include "ReLU.h"
 void conv::convolution(void) {
-	sc_int<DT_LENGTH> biases[BIASES] = { 1 };
-	/* sc_int<DT_LENGTH> kernel_padded[M3][N3];
+	/* double kernel_padded[M3][N3];
 	//ZERO-PADDING кернела
 	//т.к. кернел после паддинга слева-снизу, то строки перебираем сконца (снизу), а столбцы сначала(слева)
 	 for (int i = M3-1; i >= (M3-M1); --i) {
@@ -10,7 +9,7 @@ void conv::convolution(void) {
 			kernel_padded[i][k]=kernel[i-1][k].read();
 		}
 	}  */
-	sc_int<DT_LENGTH> kernel_in[L1][M1][N1];
+	double kernel_in[L1][M1][N1];
 	for (int j = 0; j < L1; ++j) {
 		for (int i = 0; i < M1; ++i) {
 			for (int k = 0; k < N1; ++k) {
@@ -29,8 +28,17 @@ void conv::convolution(void) {
 		}
 		cout << endl;
 	}
+
+	double biases_in[BIASES];
+	 for (int k = 0; k < BIASES; ++k) {
+            biases_in[k]=biases[k].read();
+    }
+	cout << "[отладочный вывод][convolution] баесы:" << endl;
+	 for (int k = 0; k < BIASES; ++k) {
+            cout<<biases_in[k]<<endl;
+    }
 	//нормализация кернела
-	/* sc_int<16> k_sum;
+	/* double k_sum;
 	for (int i = 0; i < M1; ++i) {
 		for (int k = 0; k < N1; ++k) {
 			k_sum+=kernel[i][k].read();
@@ -55,7 +63,7 @@ void conv::convolution(void) {
 	} */
 
 
-	sc_int<DT_LENGTH> image_in[M2][N2];
+	double image_in[M2][N2];
 	for (int i = 0; i < M2; ++i) {
 		for (int k = 0; k < N2; ++k) {
 			image_in[i][k] = image[i * N2 + k].read();
@@ -70,7 +78,7 @@ void conv::convolution(void) {
 	}
 	cout << endl;
 	//свёртка
-	sc_int<DT_LENGTH> result[L3][M3][N3];
+	double result[L3][M3][N3];
 	
 
 	for (int k = 0; k < L1; k++) {//число кернелов и выходных матрицы соотв-но
@@ -100,8 +108,7 @@ void conv::convolution(void) {
 	}
 	cout << endl;
 
-	
-	//конечный вывод из функции и модуля conv
+	/* //конечный вывод из функции и модуля conv
 	for (int k = 0; k < L3; k++) {
 		for (int i = 0; i < M3; i++) {
 			for (int j = 0; j < N3; j++) {
@@ -109,6 +116,6 @@ void conv::convolution(void) {
 				
 			}
 		}
-	}
-	cout<<"@" << sc_time_stamp() <<" convolution layer calculated"<<endl;
+	} */
+	//cout<<"@" << sc_time_stamp() <<" convolution layer calculated"<<endl;
 };

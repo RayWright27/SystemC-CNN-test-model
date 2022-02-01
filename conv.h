@@ -1,26 +1,14 @@
-/* #define DT_LENGTH 32//длина переменных 
-#define M1 2//число строк КЕРНЕЛА 
-#define N1 2//число столбцов КЕРНЕЛА 
-#define M2 5//число строк ИЗОБРАЖЕНИЯ
-#define N2 5//число столбцов ИЗОБРАЖЕНИЯ
-#define STRIDE 1
-#define ZERO_PAD 0
-#define M3 (M2-M1+2*ZERO_PAD)/STRIDE+1//вычисляем размеры выходной матрицы
-#define N3 (N2-N1+2*ZERO_PAD)/STRIDE+1 */
 #include <macro.h>
 #include <systemc.h>
-
-#include "matrix_mul.h"
 
 SC_MODULE(conv) {
 	//порты
 	sc_in<bool> clk, rst_n;
-	sc_in<sc_int<DT_LENGTH>> kernel[KER];
-	sc_in<sc_int<DT_LENGTH>> image[IMG];
-	sc_out<sc_int<DT_LENGTH>> convolved_mat[CONV_ED];
-	
-	//matrix_mul *max_mul[MM][NN];
-	
+	sc_in<double> biases[BIASES];
+	sc_in<double> kernel[KER];
+	sc_in<double> image[IMG];
+	//sc_out<double> convolved_mat[21632];
+	//sc_out<float> convoutput[2000];
 	void convolution(void);//делаем kernel таких же размеров как и выходную матрицу
 	
 	SC_CTOR(conv){

@@ -4,8 +4,8 @@
 #define DENSE_KER2 10 //âûõîäíàÿ äëèíà âåêòîğà
 SC_MODULE(dense) {
 	sc_in<bool> clk, rst_n;
-	sc_in<sc_int<DT_LENGTH>> dense_input[POOL_ED];
-	sc_out<sc_int<DT_LENGTH>> dense_output[DENSE_KER2];
+	sc_in<double> dense_input[POOL_ED];
+	sc_out<double> dense_output[DENSE_KER2];
 
 	SC_CTOR(dense) {
 		SC_METHOD(dense_func);
@@ -14,7 +14,7 @@ SC_MODULE(dense) {
 	}
 
 	void dense_func(void) {
-		sc_int<DT_LENGTH> input[POOL_ED];
+		double input[POOL_ED];
 		for (int i = 0; i < POOL_ED; i++) {
 			input[i] = dense_input[i].read();
 		}
@@ -23,10 +23,10 @@ SC_MODULE(dense) {
 		}
 		cout << endl;
 
-		sc_int<DT_LENGTH> kernel[DENSE_KER1][DENSE_KER2];
+		double kernel[DENSE_KER1][DENSE_KER2];
 		for (int i = 0; i < DENSE_KER2; i++) {
 			for (int j = 0; j < DENSE_KER1; j++) {
-				kernel[i][j] = rand() % 10;
+				kernel[i][j] = 1;//rand() % 2;/// ÈÇ-ÇÀ İÒÎÃÎ ÇÍÀ×ÅÍÈß Â ÏÎÑËÅÄÍÅÌ ÑËÎÅ ÂÑÅÃÄÀ ĞÀÇÍÛÅ!
 			}
 		}
 		cout << "[debugging output][dense] kernel size:" << " DENSE_KER1 = " << DENSE_KER1 << " DENSE_KER2 = " << DENSE_KER2 << endl;
@@ -39,21 +39,22 @@ SC_MODULE(dense) {
 		}*/
 		cout << endl;
 
-		sc_int<DT_LENGTH> biases[BIASES] = { 2 };
+		double biases[BIASES] = { 2 };
 
-		sc_int<DT_LENGTH> result[DENSE_KER2];
+		double result[DENSE_KER2];
 		for(int i = 0; i < DENSE_KER1; i++) {
 			for (int j = 0; j < DENSE_KER2; j++) {
 				result[j] += kernel[i][j] * input[i];
 				
-			}
-			
+			}			
 		}
+
+
 
 		for (int i = 0; i < DENSE_KER2; i++) {
 			cout << result[i] << " ";
 		}
 		cout << endl;
-		cout<<"@" << sc_time_stamp() <<" dense layer calculated"<<endl;
+		//cout<<"@" << sc_time_stamp() <<" dense layer calculated"<<endl;
 	}
 };
