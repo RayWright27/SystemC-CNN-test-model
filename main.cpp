@@ -16,12 +16,16 @@ SC_MODULE(TOP){
     sc_signal<bool> kernel_vld_sig;//=1 когда данные кернела вилдны для считывания 
     sc_signal<bool> image_rdy_sig;
     sc_signal<bool> image_vld_sig;
+    sc_signal<bool> biases_rdy_sig;
+    sc_signal<bool> biases_vld_sig;
+    sc_signal<bool> conv_2d_1_result_vld_sig;
+    sc_signal<bool> conv_2d_1_result_rdy_sig;
     sc_signal<double> kernel_sig, image_sig, biases_sig;
-    sc_signal<double> convolved_mat_sig[CONV_ED];
+    sc_signal<double> conv_2d_1_result_sig;
     sc_signal<double> pooled_featuremap_sig[POOL_ED];
     sc_signal<double> output_sig[DENSE_KER2];
     
-    SC_CTOR(TOP):clk("clk",sc_time(2,SC_NS)){
+    SC_CTOR(TOP):clk("clk",sc_time(2,SC_NS)){//конструктор копирования clk_sig
         //инстанциируем модули и соединения сигналами
         DRI_TB = new tb_driver("tb");
         DRI_TB->clk(clk);
@@ -33,6 +37,11 @@ SC_MODULE(TOP){
         DRI_TB->kernel_vld(kernel_vld_sig);
         DRI_TB->image_rdy(image_rdy_sig);
         DRI_TB->image_vld(image_vld_sig);
+        DRI_TB->biases_rdy(biases_rdy_sig);
+        DRI_TB->biases_vld(biases_vld_sig);
+        DRI_TB->conv_2d_1_result(conv_2d_1_result_sig);
+        DRI_TB->conv_2d_1_result_vld(conv_2d_1_result_vld_sig);
+        DRI_TB->conv_2d_1_result_rdy(conv_2d_1_result_rdy_sig);
 
         CONV_2D_1 = new conv("conv_2d_1");
         CONV_2D_1->clk(clk);
@@ -44,6 +53,12 @@ SC_MODULE(TOP){
         CONV_2D_1->kernel_rdy(kernel_rdy_sig);
         CONV_2D_1->image_vld(image_vld_sig);
         CONV_2D_1->image_rdy(image_rdy_sig);
+        CONV_2D_1->biases_vld(biases_vld_sig);
+        CONV_2D_1->biases_rdy(biases_rdy_sig);
+        CONV_2D_1->conv_2d_1_result(conv_2d_1_result_sig);
+        CONV_2D_1->conv_2d_1_result_rdy(conv_2d_1_result_rdy_sig);
+        CONV_2D_1->conv_2d_1_result_vld(conv_2d_1_result_vld_sig);
+        
     }
 
     //деструктор
@@ -55,23 +70,6 @@ SC_MODULE(TOP){
 
     // (old) инстанциируем модули и соединяем сигналы
 /* 
-    conv DUT("DUT");
-    DUT.clk(clk);
-    DUT.rst(rst);
-    for (int j = 0; j < KER; ++j) {
-                DUT.kernel[j](kernel_sig[j]);//сигналы  внутри, снаружи порты
-    }
-    for (int k = 0; k < IMG; ++k) {
-            DUT.image[k](image_sig[k]);
-    }
-     for (int k = 0; k < BIASES; ++k) {
-            DUT.biases[k](biases_sig[k]);
-    } */
-    /*
-     for (int j = 0; j <21632; ++j) {
-                DUT.convolved_mat[j](convolved_mat_sig[j]);
-    } */ 
-
     /* max_pool DUT2("DUT2");
     DUT2.clk(clk);
     DUT2.rst_n(rst_n);
@@ -102,34 +100,28 @@ int sc_main(int argc, char* argv[]) {
     top=new TOP("top_module");
     //начинаем симуляцию
         int sim_step=1;
-        for (int i=0;i<600;i++){
+        sc_start(400000,SC_NS);
+        for (int i=0;i<1000000;i++){
             sc_start(sim_step, SC_NS);
-            //cout << "clk = "<<top->clk<<"  @ "<<sc_time_stamp()<<endl;
+            
+            /* cout << "clk = "<<top->clk<<"  @ "<<sc_time_stamp()<<endl;
+            cout<<" kernel_rdy = "<<top->kernel_rdy_sig<<"| ";
+            cout<<" kernel_vld = "<<top->kernel_vld_sig<<"| ";
+            cout<<" kernel_sig = "<<top->kernel_sig<<endl;
+            cout<<" image_rdy = "<<top->image_rdy_sig<<" | ";
+            cout<<" image_vld = "<<top->image_vld_sig<<" | ";
+            cout<<" image_sig =  "<<top->image_sig<<endl;
+            cout<<" biases_rdy = "<<top->biases_rdy_sig<<"| ";
+            cout<<" biases_vld = "<<top->biases_vld_sig<<"| ";
+            cout<<" biases_sig = "<<top->biases_sig<<endl;
+            cout<<" conv_2d_1_result_rdy = "<<top->conv_2d_1_result_rdy_sig<<"| ";
+            cout<<" conv_2d_1_result_vld = "<<top->conv_2d_1_result_vld_sig<<"| ";
+            cout<<" conv_2d_1_result_sig = "<<top->conv_2d_1_result_sig<<endl<<endl; */
+
+
+            
         }
-    
-    
-    /* rst_n = 0;    // Assert the reset
-    cout << "@" << sc_time_stamp() <<" Asserting reset\n" << endl;
-    for (int i=0;i<1;i++) {
-        clk = 0; 
-        sc_start(50, SC_NS);
-        clk = 1; 
-        sc_start(50, SC_NS);
-    }
-    rst_n = 1;    // De-assert the reset
-    cout << "@" << sc_time_stamp() <<" De-Asserting reset\n" << endl;
-    for (int i=0;i<1;i++) {
-        clk = 0; 
-        sc_start(50, SC_NS);
-        clk = 1; 
-        sc_start(50, SC_NS);
-    } */
      sc_stop();
-   /* cout << "результат conv " << endl;
-    for (int i = 0; i < CONV_ED; i++) {
-        cout << convolved_mat_sig[i] << " ";
-    }
-    cout << endl;*/
  
     return 0;
 }
