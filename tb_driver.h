@@ -26,8 +26,8 @@ SC_MODULE(tb_driver){
     void generate_biases(void);
     void conv_2d_1_sink(void);
 	
-	FILE *conv_2d_1_file;
-    
+	FILE *outfp;
+
 	SC_CTOR(tb_driver) {
         SC_THREAD(generate_reset);
         SC_THREAD(generate_kernel);

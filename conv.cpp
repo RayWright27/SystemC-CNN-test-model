@@ -187,8 +187,9 @@ void conv::convolution(void) {
 				conv_2d_1_result.write(convolved_mat[i]);
 				conv_2d_1_result_vld.write(0);
 			}	
+			conv_2d_1_result.write(0);
 			cout<<"@" << sc_time_stamp() <<" convolution data transmitted"<<endl;
-			sc_stop();
+			
 		}
 	
 		else{

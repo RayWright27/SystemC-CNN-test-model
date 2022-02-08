@@ -1,5 +1,5 @@
 #include "tb_driver.h"
-
+#include <iomanip>
 void tb_driver::generate_reset(void){
      //генерация ресета
     rst.write(1);
@@ -144,47 +144,78 @@ void tb_driver::generate_image(void){
 };
 
 void tb_driver::conv_2d_1_sink(void){
-    double conv_2d_1_result_flattened[CONV_ED];
+
     //создаём файл для вывода
-    char conv_2d_1_output_file[21632];
-    sprintf(conv_2d_1_output_file, " /mnt/c/systemc/conv_2d_1_output_recieved.dat");
-    conv_2d_1_file=fopen(conv_2d_1_output_file, "w");
-    if (conv_2d_1_file == NULL){
+    /*char conv_2d_1_output_file[21632];
+    sprintf(conv_2d_1_output_file, " ./conv_2d_1_output_recieved.dat");
+    outfp=fopen(conv_2d_1_output_file, "w");
+    if (outfp == NULL){
         cout<<" Невозможно открыть conv_2d_1_output_recieved.dat для записи"<<endl;
         exit(0);
+    }*/
+
+    //инициализируем хэндшейк
+    conv_2d_1_result_rdy.write(0);
+    wait(clk->posedge_event());
+
+    double conv_2d_1_result_flattened[CONV_ED];
+    
+    /* Поскольку в SystemC есть ограничение по выделяемой памти создаём динамический 
+    массив через тройной указатель для хранения результатов слоя*/
+    //double conv_2d_1_result_arr[L3][M3][N3];
+    double*** conv_2d_1_result_arr = new double**[L3];
+    for (int i=0; i<L3;i++){
+        conv_2d_1_result_arr[i] = new double*[M3];
+        for (int j=0;j<M3;j++){
+            conv_2d_1_result_arr[i][j] = new double[N3];
+        }
     }
 
     while(true){
-        conv_2d_1_result_rdy.write(0);
-        for(int i=0;i<CONV_ED;i++){
+        for(int i=0;i<CONV_ED+1;i++){
             conv_2d_1_result_rdy.write(1);
             do{
                 wait(clk->posedge_event());
             }while (!conv_2d_1_result_vld.read());
             conv_2d_1_result_flattened[i]=conv_2d_1_result.read();
             conv_2d_1_result_rdy.write(0);
-            fprintf(conv_2d_1_file, "%f\n", conv_2d_1_result.read());
+            //fprintf(outfp, "%f\n", conv_2d_1_result.read());
         }
-        /*
-        double result[L3][M3][N3];
-        for (int k = 0; k < L3; k++) {
-				for (int i = 0; i < M3; i++) {
-					for (int j = 0; j < N3; j++) {
-						result[k][i][j]=conv_2d_1_result_flattened[k*N3*M3+i*N3+j]; 
+        cout<<"@" << sc_time_stamp() <<" convolution data recieved"<<endl;
+		/* 
+        for (int i=0;i<CONV_ED;i++){
+            cout<<conv_2d_1_result_flattened[i]<<" ";
+        } */
+        
+         for (int i = 0; i < L3; i++) {
+				for (int j = 0; j < M3; j++) {
+					for (int k = 0; k < N3; k++) {
+						conv_2d_1_result_arr[i][j][k]=conv_2d_1_result_flattened[i*N3*M3+j*N3+k+1]; 
 					}
 				}
-		}/*
+		} 
+        
         cout<<"[отладочный вывод][DRI_TB] результат:"<<endl;
-        for (int k = 0; k < L3; ++k) {
-            for (int i = 0; i < M3; ++i) {
-                for (int j = 0; j < N3; ++j) {
-                    cout << result[k][i][j] << " ";
+        for (int i = 0; i < L3; i++) {
+            for (int j = 0; j < M3; j++) {
+                for (int k = 0; k < N3; k++) {
+                    cout <<std::setprecision(1)<< conv_2d_1_result_arr[i][j][k] << " ";
                 }
                 cout << endl;
             }
             cout << "_________________" << endl;
             cout << endl << endl;
-        } */
+        }
+
+        for (int i = 0; i < L3; i++) {
+            for (int j = 0; j < M3; j++) {               
+                delete[] conv_2d_1_result_arr[i][j];
+            }
+            delete[] conv_2d_1_result_arr[i];
+		}
+        delete[] conv_2d_1_result_arr; 
+        sc_stop();
     }
+
 
 };
