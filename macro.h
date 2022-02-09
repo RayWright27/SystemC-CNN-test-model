@@ -1,4 +1,6 @@
 #define DT_LENGTH 32//длина переменных 
+
+//для conv_2d_1 и conv_2d_2
 #define M1 3//число строк КЕРНЕЛА1 
 #define N1 3//число столбцов КЕРНЕЛА1
 #define L1 32//число кернелов 
@@ -16,6 +18,8 @@
 #define CONV_ED M3*N3*L1//длина вектора после свёртки
 #define BIASES 32
 
+#define KER2 
+
 //для max_pool
 #define P1 2//число строк КЕРНЕЛА2(POOL) 
 #define P2 2//число столбцов КЕРНЕЛА2(POOL)
@@ -32,3 +36,4 @@
 
 //dense.h
 #define DENSE_KER1 POOL_ED
+#define DENSE_KER2 10

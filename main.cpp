@@ -4,16 +4,20 @@
 #include "max_pooling.h"
 #include "dense.h"
 
-SC_MODULE(TOP){
+//------------------------------------------------
+// Передача параметров слоя в конструктор модуля слоя происходит в том же порядке, в котором эти параметры расположены в файле macro.h
+//------------------------------------------------
+
+SC_MODULE(TOP){//топ-модуль нейросетевого ускорителя
     //объявление модулей
     tb_driver *DRI_TB;
     conv *CONV_2D_1;
-
+    conv *CONV_2D_2;
     // сигналы
     sc_clock clk;//("clk", 10, SC_NS);
     sc_signal<bool> rst;
     sc_signal<bool> kernel_rdy_sig;//готовность приёма/передачи данных кернела
-    sc_signal<bool> kernel_vld_sig;//=1 когда данные кернела вилдны для считывания 
+    sc_signal<bool> kernel_vld_sig;//=1 когда данные кернела видны для считывания 
     sc_signal<bool> image_rdy_sig;
     sc_signal<bool> image_vld_sig;
     sc_signal<bool> biases_rdy_sig;
@@ -22,6 +26,13 @@ SC_MODULE(TOP){
     sc_signal<bool> conv_2d_1_result_rdy_sig;
     sc_signal<double> kernel_sig, image_sig, biases_sig;
     sc_signal<double> conv_2d_1_result_sig;
+    sc_signal<bool> kernel2_rdy_sig;//готовность приёма/передачи данных кернела
+    sc_signal<bool> kernel2_vld_sig;//=1 когда данные кернела видны для считывания 
+    sc_signal<bool> biases2_rdy_sig;
+    sc_signal<bool> biases2_vld_sig;
+    sc_signal<bool> conv_2d_2_result_vld_sig;
+    sc_signal<bool> conv_2d_2_result_rdy_sig;
+     sc_signal<double> kernel2_sig, biases2_sig;
     sc_signal<double> pooled_featuremap_sig[POOL_ED];
     sc_signal<double> output_sig[DENSE_KER2];
     
@@ -43,7 +54,7 @@ SC_MODULE(TOP){
         DRI_TB->conv_2d_1_result_vld(conv_2d_1_result_vld_sig);
         DRI_TB->conv_2d_1_result_rdy(conv_2d_1_result_rdy_sig);
 
-        CONV_2D_1 = new conv("conv_2d_1");
+        CONV_2D_1 = new conv("conv_2d_1", M1, N1, L1, KER, M2, N2, IMG, M3, N3, L3, CONV_ED, BIASES);
         CONV_2D_1->clk(clk);
         CONV_2D_1->rst(rst);
         CONV_2D_1->kernel(kernel_sig);
@@ -59,12 +70,14 @@ SC_MODULE(TOP){
         CONV_2D_1->conv_2d_1_result_rdy(conv_2d_1_result_rdy_sig);
         CONV_2D_1->conv_2d_1_result_vld(conv_2d_1_result_vld_sig);
         
+        //CONV_2D_2 = new conv("conv_2d_1", M3, N3, L3, KER2)
     }
 
     //деструктор
     ~TOP(){
         delete DRI_TB;
         delete CONV_2D_1;
+        delete CONV_2D_2;
     }
 
 

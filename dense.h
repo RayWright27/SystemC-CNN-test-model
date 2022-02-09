@@ -1,7 +1,7 @@
 #include <systemc.h>
 #include <macro.h>
 
-#define DENSE_KER2 10 //выходная длина вектора
+ //выходная длина вектора
 SC_MODULE(dense) {
 	sc_in<bool> clk, rst_n;
 	sc_in<double> dense_input[POOL_ED];
