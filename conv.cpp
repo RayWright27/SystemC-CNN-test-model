@@ -21,13 +21,15 @@ void conv::recieve_image(void) {
 				//cout<<image_in_flattened[i]<<" ";
 			}
 		}
-		for (int i = 0; i < M2_param; ++i) {
-			for (int k = 0; k < N2_param; ++k) {
-				image_in[i][k] = image_in_flattened[i * N2_param + k];
+		for (int j = 0; j < M2_param; j++){
+			for (int i = 0; i < N2_param; ++i) {
+				for (int k = 0; k < C1_param; ++k) {
+					image_in[j][i][k] = image_in_flattened[j * N2_param * C1_param + i * C1_param + k]; //можно цикл по C1 сделать в конце
+				}
 			}
 		}
 		
-		cout << "[отладочный вывод][convolution] изображение:" << endl;
+		cout << "[отладочный вывод]["<<nm<<"] изображение:" << endl;
 		for (int i = 0; i < M2_param; ++i) {
 			for (int k = 0; k < N2_param; ++k) {
 				cout << image_in[i][k] << " ";
@@ -59,7 +61,7 @@ void conv::recieve_biases(void) {
 		}
 		
 
-		cout << "[отладочный вывод][convolution] баесы:" << endl;
+		cout << "[отладочный вывод]["<< nm <<"] баесы:" << endl;
 		for (int k = 0; k < BIASES_param; ++k) {
 				cout<<biases_in[k]<<endl;
 		}
@@ -92,20 +94,25 @@ void conv::recieve_kernel(void) {
 		
 		for (int j = 0; j < L1_param; ++j) {
 			for (int i = 0; i < M1_param; ++i) {
-				for (int k = 0; k < N1_param; ++k) {
-					kernel_in[j][i][k] = kernel_in_flattened[j * N1_param * M1_param + i * M1_param + k];
+				for (int c = 0; c < C1_param; c++){
+					for (int k = 0; k < N1_param; ++k) {
+						kernel_in[j][i][c][k] = kernel_in_flattened[j * M1_param * C1_param * N1_param + i * C1_param * N1_param + c * N1_param + k];
+					}
 				}
 			}
 		}
 
-		cout<<endl<< "[отладочный вывод][convolution] кернел:" << endl;
+		cout<<endl<< "[отладочный вывод]["<<nm<<"] кернел:" << endl;
 		for (int j = 0; j < L1_param; ++j) {
 			cout<< "кернел "<<j<<":"<<endl;
 			for (int i = 0; i < M1_param; ++i) {
-				for (int k = 0; k < N1_param; ++k) {
-					cout << kernel_in[j][i][k] << " ";
+				cout << "разделение из-за С1"<< endl; 
+				for (int c = 0; c < C1_param; c++){	
+					for (int k = 0; k < N1_param; ++k) {
+						cout << kernel_in[j][i][c][k] << " ";
+					}
+					cout << endl;
 				}
-				cout << endl;
 			}
 			cout << endl;
 		}
@@ -137,27 +144,30 @@ void conv::convolution(void) {
 	/* cout<<"k_sum= "<<k_sum<<endl;
 	cout<<endl; */
 	double convolved_mat[CONV_ED_param];
-	conv_2d_1_result.write(0);
-	conv_2d_1_result_vld.write(0);
+	conv_2d_result.write(0);
+	conv_2d_result_vld.write(0);
 	while(true){
 		if (kernel_recieved == 1 and image_recieved == 1 and biases_recieved == 1 and conv_done==0){
 			//свёртка		
 			for (int k = 0; k < L1_param; k++) {//число кернелов и выходных матрицы соотв-но
 				for (int i = 0; i < M3_param; i++) {//размерность (высота/кол-во строк) изображения
 					for (int j = 0; j < N3_param; j++) {//размерность (ширина/кол-во столбцов) изображения
-						for (int m = 0; m < M1_param; m++) {// размерность (высота/кол-во строк) кернела
-							for (int n = 0; n < N1_param; n++) {//размерность (ширина/кол-во столбцов) кернела
-								result[k][i][j] += ReLU(image_in[i + m][j + n] * kernel_in[k][m][n]);
+						for (int c = 0; c < C1_param; c++){//количество входных изображений
+							for (int m = 0; m < M1_param; m++) {// размерность (высота/кол-во строк) кернела
+								for (int n = 0; n < N1_param; n++) {//размерность (ширина/кол-во столбцов) кернела
+									result[k][i][j] += ReLU(image_in[i + m][j + n][c] 
+									* kernel_in[k][m][c][n]);
+								}		
 							}
 						}
 						result[k][i][j] += biases_in[k];
-						wait(clk->posedge_event());//предположим за 1 такт вычисляется 1 значение выходной карты
+						wait(clk->posedge_event());//предположим за 1 такт вычисляется 1 значение выходной карты (для conv_2d_1)
 					}
 					
 				}
 			}
 
-			cout<<"[отладочный вывод][convolution] результат:"<<endl;
+			cout<<"[отладочный вывод]["<< nm <<"] результат:"<<endl;
 			for (int k = 0; k < L3_param; ++k) {
 				for (int i = 0; i < M3_param; ++i) {
 					for (int j = 0; j < N3_param; ++j) {
@@ -170,7 +180,7 @@ void conv::convolution(void) {
 			}
 			cout << endl;  
 			conv_done=1;
-			cout<<"@" << sc_time_stamp() <<" convolution layer calculated"<<endl;
+			cout<<"@" << sc_time_stamp() <<" "<<nm<<" layer calculated"<<endl;
 			cout << "размеры выходной матрицы: " << endl;
 			cout << "M3_param= " << M3_param << " N3_param= " << N3_param << " " << endl << endl;
 			
@@ -184,15 +194,15 @@ void conv::convolution(void) {
 		}
 		else if( conv_done == 1){
 			for (int i=0;i<CONV_ED_param;i++){
-				conv_2d_1_result_vld.write(1);
+				conv_2d_result_vld.write(1);
 				do{
 					wait(clk->posedge_event());
-				}while (!conv_2d_1_result_rdy.read());
-				conv_2d_1_result.write(convolved_mat[i]);
-				conv_2d_1_result_vld.write(0);
+				}while (!conv_2d_result_rdy_1.read());
+				conv_2d_result.write(convolved_mat[i]);
+				conv_2d_result_vld.write(0);
 			}	
-			conv_2d_1_result.write(0);
-			cout<<"@" << sc_time_stamp() <<" convolution data transmitted"<<endl;
+			conv_2d_result.write(0);
+			cout<<"@" << sc_time_stamp() <<" "<<nm<<" data transmitted"<<endl;
 			
 		}
 	
@@ -202,15 +212,3 @@ void conv::convolution(void) {
 		
 	}
 };
-
-	
-/* 
-	/* //конечный вывод из функции и модуля conv
-	for (int k = 0; k < L3_param; k++) {
-		for (int i = 0; i < M3_param; i++) {
-			for (int j = 0; j < N3_param; j++) {
-				convolved_mat[k*N3_param*M3_param+i*N3_param+j].write(result[k][i][j]); //равно и .write() дают одно и тоже 
-				
-			}
-		}
-	} */
