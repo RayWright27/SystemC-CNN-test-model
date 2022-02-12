@@ -37,25 +37,26 @@
 		sc_in<double> biases;
 		sc_in<double> kernel;
 		sc_in<double> image;
-		sc_out<double> conv_2d_result;
+		sc_out<double> conv_2d_result_tb;
+		sc_out<double> conv_2d_result_next;
 
 		sc_logic kernel_recieved;
 		sc_logic image_recieved;
 		sc_logic biases_recieved;
 		sc_logic conv_done = sc_logic(0);
 
-		double**** kernel_in = new double***[L1_param];//указатель на динамический массив т.к. в С++ недоступна инициализация массива переменной длинны
-		double*** image_in = new double**[M2_param];
-		double* biases_in = new double[BIASES_param];
-		double*** result = new double**[L3_param];
-		double* convolved_mat = new double[CONV_ED_param];
+		double**** kernel_in;// = new double***[L1_param];//указатель на динамический массив т.к. в С++ недоступна инициализация массива переменной длинны
+		double*** image_in;// = new double**[M2_param];
+		double* biases_in;// = new double[BIASES_param];
+		double*** result;// = new double**[L3_param];
+		double* convolved_mat;// = new double[CONV_ED_param];
 		
 		void recieve_image(void);
 		void recieve_biases(void);
 		void recieve_kernel(void);
 		void convolution(void);
 		void send_to_dri_tb(void);
-		void send_to_next_layer(void){};
+		void send_to_next_layer(void);
 
 		conv(sc_module_name module_name, int param1, int param2, int param3, int param4,// кастомный конструктор с параметрами для SystemC модуля 
 		int param5, int param6, int param7,int param8, int param9, int param10,
@@ -67,6 +68,7 @@
 			cout<<"------------------------------"<< module_name << " MODULE PARAMETERS-------------------------------"<<endl;
 			cout<<M1_param<<" "<<L1_param<<" "<<N1_param<<" "<< endl;
 			//объявление динамического kernel_in
+			kernel_in = new double***[L1_param];
 			for (int k=0; k<L1_param;k++){
 				kernel_in[k] = new double**[M1_param];
 				for (int i=0; i<M1_param;i++){
@@ -77,6 +79,7 @@
 				}
 			}
 			//объявление динамического image_in
+			image_in = new double**[M2_param];
 			for (int j = 0; j < M2_param; j++){
 				image_in[j] = new double*[N2_param];
 				for (int i = 0; i < N2_param; i++){
@@ -84,18 +87,23 @@
 				}
 			}
 			//объявление динамического result
+			result = new double**[L3_param];
 			for (int i=0; i<L3_param;i++){
 				result[i] = new double*[M3_param];
 				for (int j=0;j<M3_param;j++){
 					result[i][j] = new double[N3_param];
 				}
 			}
+
+			biases_in = new double[BIASES_param];
+			convolved_mat = new double[CONV_ED_param];
 			
 			SC_THREAD(recieve_kernel);
 			SC_THREAD(recieve_image);
 			SC_THREAD(recieve_biases);
 			SC_THREAD(convolution);//разделить этот метод на свёртку, отправка в тестбенч, отправка в след. слой!
 			SC_THREAD(send_to_dri_tb);
+			SC_THREAD(send_to_next_layer);
 			reset_signal_is(rst, true);
 		}
 

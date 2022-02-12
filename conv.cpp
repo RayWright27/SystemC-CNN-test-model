@@ -1,6 +1,6 @@
 #include "conv.h"
 #include "ReLU.h"
-
+#include <iomanip>
 void conv::recieve_image(void) {
 	
 	//инициализируем хэндшейк
@@ -147,7 +147,7 @@ void conv::convolution(void) {
 			for (int k = 0; k < L3_param; ++k) {
 				for (int i = 0; i < M3_param; ++i) {
 					for (int j = 0; j < N3_param; ++j) {
-						cout << result[k][i][j] << " ";
+						cout << std::setprecision(1) << result[k][i][j] << " ";
 					}
 					cout << endl;
 				}
@@ -178,7 +178,7 @@ void conv::convolution(void) {
 };/**/
 
 void conv::send_to_dri_tb(void){
-	conv_2d_result.write(0);
+	conv_2d_result_tb.write(0);
 	conv_2d_result_vld_tb.write(0);
 	while(true){
 		if ( conv_done == 1){
@@ -187,10 +187,10 @@ void conv::send_to_dri_tb(void){
 					do{
 						wait(clk->posedge_event());
 					}while (!conv_2d_result_rdy_tb.read());
-					conv_2d_result.write(convolved_mat[i]);
+					conv_2d_result_tb.write(convolved_mat[i]);
 					conv_2d_result_vld_tb.write(0);
 				}	
-				conv_2d_result.write(0);
+				conv_2d_result_tb.write(0);
 				cout<<"@" << sc_time_stamp() <<" "<<module_name<<" data transmitted"<<endl;
 		}
 		else{
@@ -199,3 +199,26 @@ void conv::send_to_dri_tb(void){
 	
 	}
 };/**/
+
+void conv::send_to_next_layer(void){
+	conv_2d_result_next.write(0);
+	conv_2d_result_vld_next.write(0);
+	while(true){
+		if ( conv_done == 1){
+			for (int i=0;i<CONV_ED_param;i++){
+					conv_2d_result_vld_next.write(1);
+					do{
+						wait(clk->posedge_event());
+					}while (!conv_2d_result_rdy_next.read());
+					conv_2d_result_next.write(convolved_mat[i]);
+					conv_2d_result_vld_next.write(0);
+				}	
+				conv_2d_result_next.write(0);
+				cout<<"@" << sc_time_stamp() <<" "<<module_name<<" data transmitted"<<endl;
+		}
+		else{
+			wait(clk->posedge_event());
+		}
+	
+	}
+};

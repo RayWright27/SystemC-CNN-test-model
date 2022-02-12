@@ -29,7 +29,8 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
     sc_signal<bool> conv_2d_1_result_rdy_sig_1;
     sc_signal<bool> conv_2d_1_result_rdy_sig_2;
     sc_signal<double> kernel_sig, image_sig, biases_sig;
-    sc_signal<double> conv_2d_1_result_sig;
+    sc_signal<double> conv_2d_1_result_sig_1;
+    sc_signal<double> conv_2d_1_result_sig_2;
     sc_signal<bool> kernel2_rdy_sig;//готовность приёма/передачи данных кернела
     sc_signal<bool> kernel2_vld_sig;//=1 когда данные кернела видны для считывания 
     sc_signal<bool> biases2_rdy_sig;
@@ -41,6 +42,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
     sc_signal<bool> dummy;
     sc_signal<bool> dummy2;
     sc_signal<bool> dummy3;
+    sc_signal<double> dummy4;
     
     SC_CTOR(TOP):clk("clk",sc_time(2,SC_NS)){//конструктор копирования clk_sig
         //инстанциируем модули и соединения сигналами
@@ -56,7 +58,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         DRI_TB->image_vld(image_vld_sig);
         DRI_TB->biases_rdy(biases_rdy_sig);
         DRI_TB->biases_vld(biases_vld_sig);
-        DRI_TB->conv_2d_1_result(conv_2d_1_result_sig);
+        DRI_TB->conv_2d_1_result(conv_2d_1_result_sig_1);
         DRI_TB->conv_2d_1_result_vld(conv_2d_1_result_vld_sig_1);
         DRI_TB->conv_2d_1_result_rdy(conv_2d_1_result_rdy_sig_1);
         DRI_TB->kernel2(kernel2_sig);
@@ -65,20 +67,21 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         DRI_TB->biases2(biases2_sig);
         DRI_TB->biases2_rdy(biases2_rdy_sig);
         DRI_TB->biases2_vld(biases2_vld_sig);
-/*
+
         CONV_2D_1 = new conv("conv_2d_1", M1, N1, L1, KER, M2, N2, C1, IMG, M3, N3, L3, CONV_ED, BIASES);
         CONV_2D_1->clk(clk);
         CONV_2D_1->rst(rst);
         CONV_2D_1->kernel(kernel_sig);
         CONV_2D_1->image(image_sig);
-        CONV_2D_1->biases(biases_sig);
+        CONV_2D_1->biases(biases_sig); 
         CONV_2D_1->kernel_vld(kernel_vld_sig);
         CONV_2D_1->kernel_rdy(kernel_rdy_sig);
         CONV_2D_1->image_vld(image_vld_sig);
         CONV_2D_1->image_rdy(image_rdy_sig);
         CONV_2D_1->biases_vld(biases_vld_sig);
         CONV_2D_1->biases_rdy(biases_rdy_sig);
-        CONV_2D_1->conv_2d_result(conv_2d_1_result_sig);
+        CONV_2D_1->conv_2d_result_tb(conv_2d_1_result_sig_1);
+        CONV_2D_1->conv_2d_result_next(conv_2d_1_result_sig_2);
         CONV_2D_1->conv_2d_result_rdy_tb(conv_2d_1_result_rdy_sig_1);
         CONV_2D_1->conv_2d_result_rdy_next(conv_2d_1_result_rdy_sig_2);
         CONV_2D_1->conv_2d_result_vld_tb(conv_2d_1_result_vld_sig_1);
@@ -87,9 +90,9 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
 
         CONV_2D_2 = new conv("conv_2d_2", M4, N4, L4, KER2, M3, N3, L3, CONV_ED, M5, N5, C2, CONV_ED2, BIASES2);
         CONV_2D_2->clk(clk);
-        CONV_2D_2->rst(rst);
+        CONV_2D_2->rst(rst); 
         CONV_2D_2->kernel(kernel2_sig);
-        CONV_2D_2->image(conv_2d_1_result_sig);
+        CONV_2D_2->image(conv_2d_1_result_sig_2);
         CONV_2D_2->biases(biases2_sig);
         CONV_2D_2->kernel_vld(kernel2_vld_sig);
         CONV_2D_2->kernel_rdy(kernel2_rdy_sig);
@@ -97,7 +100,8 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         CONV_2D_2->image_rdy(conv_2d_1_result_rdy_sig_2);
         CONV_2D_2->biases_vld(biases2_vld_sig);
         CONV_2D_2->biases_rdy(biases2_rdy_sig);
-        CONV_2D_2->conv_2d_result(conv_2d_2_result_sig);
+        CONV_2D_2->conv_2d_result_tb(conv_2d_2_result_sig);
+        CONV_2D_2->conv_2d_result_next(dummy4);
         CONV_2D_2->conv_2d_result_rdy_tb(conv_2d_2_result_rdy_sig);
         CONV_2D_2->conv_2d_result_rdy_next(dummy);
         CONV_2D_2->conv_2d_result_vld_tb(dummy2); 
@@ -146,7 +150,7 @@ int sc_main(int argc, char* argv[]) {
     //начинаем симуляцию
     
         int sim_step=1;
-        sc_start(300000,SC_NS);
+        sc_start(100000,SC_NS);
         /* for (int i=0;i<1000000;i++){
             sc_start(sim_step, SC_NS);
             
