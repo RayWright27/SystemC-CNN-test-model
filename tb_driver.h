@@ -26,6 +26,8 @@ SC_MODULE(tb_driver){
     sc_in<double> conv_2d_1_result;
     sc_out<double> kernel, image, biases, kernel2, biases2;
 
+    double *kernel2_flattened = new double[KER2];
+
     const char* kernel2file = "conv_2d_2_kernels.txt"; // название файла для кернелов conv2d_2
     
     void generate_reset(void);
@@ -49,4 +51,9 @@ SC_MODULE(tb_driver){
         SC_THREAD(generate_biases2);
 
     };
+
+    ~tb_driver(){
+        delete[] kernel2_flattened;
+        delete[] kernel2file;
+    }
 };

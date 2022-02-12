@@ -30,9 +30,12 @@ void conv::recieve_image(void) {
 		}
 		
 		cout << "[отладочный вывод]["<< conv::module_name <<"] изображение:" << endl;
-		for (int i = 0; i < M2_param; ++i) {
-			for (int k = 0; k < N2_param; ++k) {
-				cout << image_in[i][k] << " ";
+		for (int j = 0; j < M2_param; j++){
+			for (int i = 0; i < N2_param; ++i) {
+				for (int k = 0; k < C1_param; ++k) {
+					cout << image_in[j][i][k] << " ";
+				}
+				
 			}
 			cout << endl;
 		}
@@ -120,9 +123,6 @@ void conv::recieve_kernel(void) {
 };
 
 void conv::convolution(void) {
-	double convolved_mat[CONV_ED_param];
-	conv_2d_result.write(0);
-	conv_2d_result_vld.write(0);
 	while(true){
 		if (kernel_recieved == 1 and image_recieved == 1 and biases_recieved == 1 and conv_done==0){
 			//свёртка		
@@ -143,8 +143,7 @@ void conv::convolution(void) {
 					
 				}
 			}
-
-			cout<<"[отладочный вывод]["<< module_name <<"] результат:"<<endl;
+			 cout<<"[отладочный вывод]["<< module_name <<"] результат:"<<endl;
 			for (int k = 0; k < L3_param; ++k) {
 				for (int i = 0; i < M3_param; ++i) {
 					for (int j = 0; j < N3_param; ++j) {
@@ -155,12 +154,13 @@ void conv::convolution(void) {
 				cout << "_________________" << endl;
 				cout << endl << endl;
 			}
-			cout << endl;  
-			conv_done=1;
+			cout << endl;   
+	
+			conv_done = 1;
 			cout << "@" << sc_time_stamp() <<" "<<module_name<<" layer calculated"<<endl;
 			cout << "размеры выходной матрицы: " << endl;
 			cout << "M3_param= " << M3_param << " N3_param= " << N3_param << " " << endl << endl;
-			
+
 			for (int k = 0; k < L3_param; k++) {
 				for (int i = 0; i < M3_param; i++) {
 					for (int j = 0; j < N3_param; j++) {
@@ -169,23 +169,33 @@ void conv::convolution(void) {
 				}
 			}
 		}
-		else if( conv_done == 1){
-			for (int i=0;i<CONV_ED_param;i++){
-				conv_2d_result_vld.write(1);
-				do{
-					wait(clk->posedge_event());
-				}while (!conv_2d_result_rdy_1.read());
-				conv_2d_result.write(convolved_mat[i]);
-				conv_2d_result_vld.write(0);
-			}	
-			conv_2d_result.write(0);
-			cout<<"@" << sc_time_stamp() <<" "<<module_name<<" data transmitted"<<endl;
-			
-		}
-	
 		else{
 			wait(clk->posedge_event());
 		}
 		
+	}
+
+};/**/
+
+void conv::send_to_dri_tb(void){
+	conv_2d_result.write(0);
+	conv_2d_result_vld_tb.write(0);
+	while(true){
+		if ( conv_done == 1){
+			for (int i=0;i<CONV_ED_param;i++){
+					conv_2d_result_vld_tb.write(1);
+					do{
+						wait(clk->posedge_event());
+					}while (!conv_2d_result_rdy_tb.read());
+					conv_2d_result.write(convolved_mat[i]);
+					conv_2d_result_vld_tb.write(0);
+				}	
+				conv_2d_result.write(0);
+				cout<<"@" << sc_time_stamp() <<" "<<module_name<<" data transmitted"<<endl;
+		}
+		else{
+			wait(clk->posedge_event());
+		}
+	
 	}
 };/**/

@@ -16,7 +16,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
     conv *CONV_2D_2;
     // сигналы
     sc_clock clk;//("clk", 10, SC_NS);
-
+    
     sc_signal<bool> rst;
     sc_signal<bool> kernel_rdy_sig;//готовность приёма/передачи данных кернела
     sc_signal<bool> kernel_vld_sig;//=1 когда данные кернела видны для считывания 
@@ -24,7 +24,8 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
     sc_signal<bool> image_vld_sig;
     sc_signal<bool> biases_rdy_sig;
     sc_signal<bool> biases_vld_sig;
-    sc_signal<bool> conv_2d_1_result_vld_sig;
+    sc_signal<bool> conv_2d_1_result_vld_sig_1;
+    sc_signal<bool> conv_2d_1_result_vld_sig_2;
     sc_signal<bool> conv_2d_1_result_rdy_sig_1;
     sc_signal<bool> conv_2d_1_result_rdy_sig_2;
     sc_signal<double> kernel_sig, image_sig, biases_sig;
@@ -38,6 +39,8 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
     sc_signal<double> kernel2_sig, biases2_sig;
     sc_signal<double> conv_2d_2_result_sig;
     sc_signal<bool> dummy;
+    sc_signal<bool> dummy2;
+    sc_signal<bool> dummy3;
     
     SC_CTOR(TOP):clk("clk",sc_time(2,SC_NS)){//конструктор копирования clk_sig
         //инстанциируем модули и соединения сигналами
@@ -54,7 +57,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         DRI_TB->biases_rdy(biases_rdy_sig);
         DRI_TB->biases_vld(biases_vld_sig);
         DRI_TB->conv_2d_1_result(conv_2d_1_result_sig);
-        DRI_TB->conv_2d_1_result_vld(conv_2d_1_result_vld_sig);
+        DRI_TB->conv_2d_1_result_vld(conv_2d_1_result_vld_sig_1);
         DRI_TB->conv_2d_1_result_rdy(conv_2d_1_result_rdy_sig_1);
         DRI_TB->kernel2(kernel2_sig);
         DRI_TB->kernel2_rdy(kernel2_rdy_sig);
@@ -76,9 +79,10 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         CONV_2D_1->biases_vld(biases_vld_sig);
         CONV_2D_1->biases_rdy(biases_rdy_sig);
         CONV_2D_1->conv_2d_result(conv_2d_1_result_sig);
-        CONV_2D_1->conv_2d_result_rdy_1(conv_2d_1_result_rdy_sig_1);
-        CONV_2D_1->conv_2d_result_rdy_2(conv_2d_1_result_rdy_sig_2);
-        CONV_2D_1->conv_2d_result_vld(conv_2d_1_result_vld_sig);
+        CONV_2D_1->conv_2d_result_rdy_tb(conv_2d_1_result_rdy_sig_1);
+        CONV_2D_1->conv_2d_result_rdy_next(conv_2d_1_result_rdy_sig_2);
+        CONV_2D_1->conv_2d_result_vld_tb(conv_2d_1_result_vld_sig_1);
+        CONV_2D_1->conv_2d_result_vld_next(conv_2d_1_result_vld_sig_2);
  /**/
 
         CONV_2D_2 = new conv("conv_2d_2", M4, N4, L4, KER2, M3, N3, L3, CONV_ED, M5, N5, C2, CONV_ED2, BIASES2);
@@ -89,14 +93,15 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         CONV_2D_2->biases(biases2_sig);
         CONV_2D_2->kernel_vld(kernel2_vld_sig);
         CONV_2D_2->kernel_rdy(kernel2_rdy_sig);
-        CONV_2D_2->image_vld(conv_2d_1_result_vld_sig);
+        CONV_2D_2->image_vld(conv_2d_1_result_vld_sig_2);
         CONV_2D_2->image_rdy(conv_2d_1_result_rdy_sig_2);
         CONV_2D_2->biases_vld(biases2_vld_sig);
         CONV_2D_2->biases_rdy(biases2_rdy_sig);
         CONV_2D_2->conv_2d_result(conv_2d_2_result_sig);
-        CONV_2D_2->conv_2d_result_rdy_1(conv_2d_2_result_rdy_sig);
-        CONV_2D_2->conv_2d_result_vld(conv_2d_2_result_vld_sig); 
-        CONV_2D_2->conv_2d_result_rdy_2(dummy);
+        CONV_2D_2->conv_2d_result_rdy_tb(conv_2d_2_result_rdy_sig);
+        CONV_2D_2->conv_2d_result_rdy_next(dummy);
+        CONV_2D_2->conv_2d_result_vld_tb(dummy2); 
+        CONV_2D_2->conv_2d_result_vld_next(dummy3); 
         /**/ 
     }
 
@@ -141,8 +146,8 @@ int sc_main(int argc, char* argv[]) {
     //начинаем симуляцию
     
         int sim_step=1;
-        sc_start(400000,SC_NS);
-        for (int i=0;i<1000000;i++){
+        sc_start(300000,SC_NS);
+        /* for (int i=0;i<1000000;i++){
             sc_start(sim_step, SC_NS);
             
             /* cout << "clk = "<<top->clk<<"  @ "<<sc_time_stamp()<<endl;
@@ -157,11 +162,11 @@ int sc_main(int argc, char* argv[]) {
             cout<<" biases_sig = "<<top->biases_sig<<endl;
             cout<<" conv_2d_1_result_rdy = "<<top->conv_2d_1_result_rdy_sig<<"| ";
             cout<<" conv_2d_1_result_vld = "<<top->conv_2d_1_result_vld_sig<<"| ";
-            cout<<" conv_2d_1_result_sig = "<<top->conv_2d_1_result_sig<<endl<<endl; */
+            cout<<" conv_2d_1_result_sig = "<<top->conv_2d_1_result_sig<<endl<<endl; 
 
 
             
-        }
+        } */
      sc_stop();
  
     return 0;

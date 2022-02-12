@@ -198,7 +198,7 @@ void tb_driver::conv_2d_1_sink(void){
 				}
 		} 
         
-        cout<<"[отладочный вывод][DRI_TB] результат:"<<endl;
+       /*  cout<<"[отладочный вывод][DRI_TB] результат:"<<endl;
         for (int i = 0; i < L3; i++) {
             for (int j = 0; j < M3; j++) {
                 for (int k = 0; k < N3; k++) {
@@ -208,7 +208,7 @@ void tb_driver::conv_2d_1_sink(void){
             }
             cout << "_________________" << endl;
             cout << endl << endl;
-        }
+        } */
 
         for (int i = 0; i < L3; i++) {
             for (int j = 0; j < M3; j++) {               
@@ -217,13 +217,13 @@ void tb_driver::conv_2d_1_sink(void){
             delete[] conv_2d_1_result_arr[i];
 		}
         delete[] conv_2d_1_result_arr; 
-        sc_stop();
+        //sc_stop();
     }
 };
 
 void tb_driver::generate_kernel2(void){
     
-    double *kernel2_flattened = new double[KER2];
+    
 //передача кернелов для conv_2d_2 из файла в динамический массив kernel_flattened2
     std::fstream file( kernel2file, std::fstream::in);
     if (!file){
