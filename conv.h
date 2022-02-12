@@ -17,7 +17,7 @@
 			int L3_param;
 			int CONV_ED_param;
 			int BIASES_param;
-			char nm;
+			char module_name;
 
 			//порты
 			sc_in<bool> clk, rst;
@@ -52,28 +52,29 @@
 			double* biases_in = new double[BIASES_param];
 			double*** result = new double**[L3_param];
 			//double result[L3][M3][N3];
-
-			void recieve_kernel(void);
+			
 			void recieve_image(void);
 			void recieve_biases(void);
+			void recieve_kernel(void);
 			void convolution(void);
+			void send_to_dri_tb(void);
+			void send_to_next_layer(void){};
 
-			conv(sc_module_name nm, int param1, int param2, int param3, int param4,// кастомный конструктор с параметрами для SystemC модуля 
+			conv(sc_module_name module_name, int param1, int param2, int param3, int param4,// кастомный конструктор с параметрами для SystemC модуля 
 			int param5, int param6, int param7,int param8, int param9, int param10,
-			int param11, int param12, int param13):sc_module(nm),
+			int param11, int param12, int param13):sc_module(module_name),
 			M1_param(param1),N1_param(param2),L1_param(param3),
 			KER_param(param4),M2_param(param5),N2_param(param6),
-			C1_param(param7),
-			IMG_param(param8),M3_param(param9),N3_param(param10),
+			C1_param(param7),IMG_param(param8),M3_param(param9),N3_param(param10),
 			L3_param(param11),CONV_ED_param(param12),BIASES_param(param13){
-				cout<<"------------------------------"<< nm<<" MODULE PARAMETERS----------------"<<endl;
+				cout<<"------------------------------"<< module_name << " MODULE PARAMETERS-------------------------------"<<endl;
 				cout<<M1_param<<" "<<L1_param<<" "<<N1_param<<" "<< endl;
 				//объявление динамического kernel_in
 				for (int k=0; k<L1_param;k++){
 					kernel_in[k] = new double**[M1_param];
 					for (int i=0; i<M1_param;i++){
-						kernel_in[k][i] = new double*[C1];
-						for (int j=0;j<C1;j++){
+						kernel_in[k][i] = new double*[C1_param];
+						for (int j=0;j<C1_param;j++){
 							kernel_in[k][i][j] = new double[N1_param];
 						}
 					}
@@ -82,7 +83,7 @@
 				for (int j = 0; j < M2_param; j++){
 					image_in[j] = new double*[N2_param];
 					for (int i = 0; i < N2_param; i++){
-						image_in[j][i] = new double[C1];
+						image_in[j][i] = new double[C1_param];
 					}
 				}
 				//объявление динамического result
@@ -99,8 +100,6 @@
 				SC_THREAD(convolution);//разделить этот метод на свёртку, отправка в тестбенч, отправка в след. слой!
 				reset_signal_is(rst, true);
 			}
-
-			
 		};
 
 

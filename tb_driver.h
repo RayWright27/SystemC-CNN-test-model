@@ -25,6 +25,8 @@ SC_MODULE(tb_driver){
 
     sc_in<double> conv_2d_1_result;
     sc_out<double> kernel, image, biases, kernel2, biases2;
+
+    const char* kernel2file = "conv_2d_2_kernels.txt"; // название файла для кернелов conv2d_2
     
     void generate_reset(void);
     void generate_kernel(void);
@@ -35,7 +37,7 @@ SC_MODULE(tb_driver){
     void generate_kernel2(void);
     void generate_biases2(void);
 	
-	FILE *outfp;
+
 
 	SC_CTOR(tb_driver) {
         SC_THREAD(generate_reset);
@@ -45,6 +47,6 @@ SC_MODULE(tb_driver){
         SC_THREAD(conv_2d_1_sink);
         SC_THREAD(generate_kernel2);
         SC_THREAD(generate_biases2);
-        
+
     };
 };

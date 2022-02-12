@@ -29,7 +29,7 @@ void conv::recieve_image(void) {
 			}
 		}
 		
-		cout << "[отладочный вывод]["<<nm<<"] изображение:" << endl;
+		cout << "[отладочный вывод]["<< conv::module_name <<"] изображение:" << endl;
 		for (int i = 0; i < M2_param; ++i) {
 			for (int k = 0; k < N2_param; ++k) {
 				cout << image_in[i][k] << " ";
@@ -43,7 +43,7 @@ void conv::recieve_image(void) {
 		cout<<"IMG_param REC = "<<image_recieved<<" "<<" K = "<<kernel_recieved<<" B = "<<biases_recieved<<endl;
 	}
 	
-};
+};/**/
 
 void conv::recieve_biases(void) {
 	biases_rdy.write(0);
@@ -61,18 +61,15 @@ void conv::recieve_biases(void) {
 		}
 		
 
-		cout << "[отладочный вывод]["<< nm <<"] баесы:" << endl;
+		cout << "[отладочный вывод]["<< conv::module_name <<"] баесы:" << endl;
 		for (int k = 0; k < BIASES_param; ++k) {
 				cout<<biases_in[k]<<endl;
 		}
 		biases_recieved=1;
 	}
 };
-
+/**/ 
 void conv::recieve_kernel(void) {
-
-
-
 	//инициализируем хэндшейк
 	kernel_rdy.write(0);
 	wait(clk->posedge_event());
@@ -102,7 +99,7 @@ void conv::recieve_kernel(void) {
 			}
 		}
 
-		cout<<endl<< "[отладочный вывод]["<<nm<<"] кернел:" << endl;
+		cout<<endl<< "[отладочный вывод]["<< conv::module_name <<"] кернел:" << endl;
 		for (int j = 0; j < L1_param; ++j) {
 			cout<< "кернел "<<j<<":"<<endl;
 			for (int i = 0; i < M1_param; ++i) {
@@ -113,36 +110,16 @@ void conv::recieve_kernel(void) {
 					}
 					cout << endl;
 				}
+				
 			}
 			cout << endl;
 		}
 		kernel_recieved=1;
+		
 	}
 };
 
 void conv::convolution(void) {
-		/* double kernel_padded[M3_param][N3_param];
-	//ZERO-PADDING кернела
-	//т.к. кернел после паддинга слева-снизу, то строки перебираем сконца (снизу), а столбцы сначала(слева)
-	 for (int i = M3_param-1; i >= (M3_param-M1_param); --i) {
-		for (int k = 0; k < N3_param-1; ++k) {
-			kernel_padded[i][k]=kernel[i-1][k].read();
-		}
-	}  */
-	//нормализация кернела
-	/* double k_sum;
-	for (int i = 0; i < M1_param; ++i) {
-		for (int k = 0; k < N1_param; ++k) {
-			k_sum+=kernel[i][k].read();
-		}
-	} */
-	/* for (int i = 0; i < M1_param; ++i) {
-		for (int k = 0; k < N1_param; ++k) {
-			kernel[i][k].write(kernel[i][k].read/k_sum);
-		}
-	} */
-	/* cout<<"k_sum= "<<k_sum<<endl;
-	cout<<endl; */
 	double convolved_mat[CONV_ED_param];
 	conv_2d_result.write(0);
 	conv_2d_result_vld.write(0);
@@ -167,7 +144,7 @@ void conv::convolution(void) {
 				}
 			}
 
-			cout<<"[отладочный вывод]["<< nm <<"] результат:"<<endl;
+			cout<<"[отладочный вывод]["<< module_name <<"] результат:"<<endl;
 			for (int k = 0; k < L3_param; ++k) {
 				for (int i = 0; i < M3_param; ++i) {
 					for (int j = 0; j < N3_param; ++j) {
@@ -180,7 +157,7 @@ void conv::convolution(void) {
 			}
 			cout << endl;  
 			conv_done=1;
-			cout<<"@" << sc_time_stamp() <<" "<<nm<<" layer calculated"<<endl;
+			cout << "@" << sc_time_stamp() <<" "<<module_name<<" layer calculated"<<endl;
 			cout << "размеры выходной матрицы: " << endl;
 			cout << "M3_param= " << M3_param << " N3_param= " << N3_param << " " << endl << endl;
 			
@@ -202,7 +179,7 @@ void conv::convolution(void) {
 				conv_2d_result_vld.write(0);
 			}	
 			conv_2d_result.write(0);
-			cout<<"@" << sc_time_stamp() <<" "<<nm<<" data transmitted"<<endl;
+			cout<<"@" << sc_time_stamp() <<" "<<module_name<<" data transmitted"<<endl;
 			
 		}
 	
@@ -211,4 +188,4 @@ void conv::convolution(void) {
 		}
 		
 	}
-};
+};/**/

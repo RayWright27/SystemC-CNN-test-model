@@ -8,13 +8,15 @@
 // Передача параметров слоя в конструктор модуля слоя происходит в том же порядке, в котором эти параметры расположены в файле macro.h
 //------------------------------------------------
 
-SC_MODULE(TOP){//топ-модуль нейросетевого ускорителя
+SC_MODULE(TOP){//топ-модуль нейросетевого ускорителя 
     //объявление модулей
+    
     tb_driver *DRI_TB;
     conv *CONV_2D_1;
     conv *CONV_2D_2;
     // сигналы
     sc_clock clk;//("clk", 10, SC_NS);
+
     sc_signal<bool> rst;
     sc_signal<bool> kernel_rdy_sig;//готовность приёма/передачи данных кернела
     sc_signal<bool> kernel_vld_sig;//=1 когда данные кернела видны для считывания 
@@ -36,8 +38,6 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
     sc_signal<double> kernel2_sig, biases2_sig;
     sc_signal<double> conv_2d_2_result_sig;
     sc_signal<bool> dummy;
-    sc_signal<double> pooled_featuremap_sig[POOL_ED];
-    sc_signal<double> output_sig[DENSE_KER2];
     
     SC_CTOR(TOP):clk("clk",sc_time(2,SC_NS)){//конструктор копирования clk_sig
         //инстанциируем модули и соединения сигналами
@@ -62,7 +62,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         DRI_TB->biases2(biases2_sig);
         DRI_TB->biases2_rdy(biases2_rdy_sig);
         DRI_TB->biases2_vld(biases2_vld_sig);
-
+/*
         CONV_2D_1 = new conv("conv_2d_1", M1, N1, L1, KER, M2, N2, C1, IMG, M3, N3, L3, CONV_ED, BIASES);
         CONV_2D_1->clk(clk);
         CONV_2D_1->rst(rst);
@@ -79,8 +79,9 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         CONV_2D_1->conv_2d_result_rdy_1(conv_2d_1_result_rdy_sig_1);
         CONV_2D_1->conv_2d_result_rdy_2(conv_2d_1_result_rdy_sig_2);
         CONV_2D_1->conv_2d_result_vld(conv_2d_1_result_vld_sig);
+ /**/
 
-         CONV_2D_2 = new conv("conv_2d_2", M4, N4, L4, KER2, M3, N3, L3, CONV_ED, M5, N5, C2, CONV_ED2, BIASES2);
+        CONV_2D_2 = new conv("conv_2d_2", M4, N4, L4, KER2, M3, N3, L3, CONV_ED, M5, N5, C2, CONV_ED2, BIASES2);
         CONV_2D_2->clk(clk);
         CONV_2D_2->rst(rst);
         CONV_2D_2->kernel(kernel2_sig);
@@ -96,6 +97,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         CONV_2D_2->conv_2d_result_rdy_1(conv_2d_2_result_rdy_sig);
         CONV_2D_2->conv_2d_result_vld(conv_2d_2_result_vld_sig); 
         CONV_2D_2->conv_2d_result_rdy_2(dummy);
+        /**/ 
     }
 
     //деструктор
@@ -135,7 +137,7 @@ TOP *top = NULL;//чтобы не указывало на какой-то слу
 int sc_main(int argc, char* argv[]) {
     sc_core::sc_report_handler::set_actions("/IEEE_Std_1666/deprecated", sc_core::SC_DO_NOTHING);//suppress warning due to set_time_resolution
     //sc_set_time_resolution(1, SC_NS);
-    top=new TOP("top_module");
+    top = new TOP("top_module");
     //начинаем симуляцию
     
         int sim_step=1;

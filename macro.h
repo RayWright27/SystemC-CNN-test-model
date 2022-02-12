@@ -18,11 +18,12 @@
 #define CONV_ED M3*N3*L1//длина вектора после свёртки
 #define BIASES 32
 
+
 #define STRIDE2 1
 #define M4 3//число строк КЕРНЕЛА2
 #define N4 3//число столбцов КЕРНЕЛА2
 #define L4 64//число кернелов и выходных изображений соответственно
-#define KER2 M4*N4*L4//длина вектора кернела2
+#define KER2 M4*N4*L4*C2//длина вектора кернела2
 #define C2 L3// количество выходных изображений из conv_2d_2 = количеству входных в conv_2d_1
 #define M5 ((M3-M4+2*ZERO_PAD)/STRIDE2+1)
 #define N5 ((N3-N4+2*ZERO_PAD)/STRIDE2+1)
