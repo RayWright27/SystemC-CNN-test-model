@@ -162,18 +162,7 @@ void tb_driver::conv_2d_1_sink(void){
     wait(clk->posedge_event());
 
     double conv_2d_1_result_flattened[CONV_ED];
-    
-    /* Поскольку в SystemC есть ограничение по выделяемой памти создаём динамический 
-    массив через тройной указатель для хранения результатов слоя*/
     //double conv_2d_1_result_arr[L3][M3][N3];
-    double*** conv_2d_1_result_arr = new double**[L3];
-    for (int i=0; i<L3;i++){
-        conv_2d_1_result_arr[i] = new double*[M3];
-        for (int j=0;j<M3;j++){
-            conv_2d_1_result_arr[i][j] = new double[N3];
-        }
-    }
-
     while(true){
         for(int i=0;i<CONV_ED+1;i++){
             conv_2d_1_result_rdy.write(1);
@@ -210,13 +199,7 @@ void tb_driver::conv_2d_1_sink(void){
             cout << endl << endl;
         } */
 
-        for (int i = 0; i < L3; i++) {
-            for (int j = 0; j < M3; j++) {               
-                delete[] conv_2d_1_result_arr[i][j];
-            }
-            delete[] conv_2d_1_result_arr[i];
-		}
-        delete[] conv_2d_1_result_arr; 
+       
         //sc_stop();
     }
 };

@@ -150,7 +150,7 @@ int sc_main(int argc, char* argv[]) {
     //начинаем симуляцию
     
         int sim_step=1;
-        sc_start(100000,SC_NS);
+        sc_start(1000000,SC_NS);
         /* for (int i=0;i<1000000;i++){
             sc_start(sim_step, SC_NS);
             

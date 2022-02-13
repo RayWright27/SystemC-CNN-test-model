@@ -26,7 +26,8 @@ SC_MODULE(tb_driver){
     sc_in<double> conv_2d_1_result;
     sc_out<double> kernel, image, biases, kernel2, biases2;
 
-    double *kernel2_flattened = new double[KER2];
+    double *kernel2_flattened;
+    double*** conv_2d_1_result_arr;
 
     const char* kernel2file = "conv_2d_2_kernels.txt"; // название файла для кернелов conv2d_2
     
@@ -42,6 +43,18 @@ SC_MODULE(tb_driver){
 
 
 	SC_CTOR(tb_driver) {
+        kernel2_flattened = new double[KER2];
+
+    /* Поскольку в SystemC есть ограничение по выделяемой памти создаём динамический 
+    массив через тройной указатель для хранения результатов слоя*/
+        conv_2d_1_result_arr = new double**[L3];
+        for (int i=0; i<L3;i++){
+            conv_2d_1_result_arr[i] = new double*[M3];
+            for (int j=0;j<M3;j++){
+                conv_2d_1_result_arr[i][j] = new double[N3];
+            }
+        }
+
         SC_THREAD(generate_reset);
         SC_THREAD(generate_kernel);
         SC_THREAD(generate_image); 
@@ -54,6 +67,14 @@ SC_MODULE(tb_driver){
 
     ~tb_driver(){
         delete[] kernel2_flattened;
-        delete[] kernel2file;
+        delete kernel2file;
+
+         for (int i = 0; i < L3; i++) {
+            for (int j = 0; j < M3; j++) {               
+                delete[] conv_2d_1_result_arr[i][j];
+            }
+            delete[] conv_2d_1_result_arr[i];
+		}
+        delete[] conv_2d_1_result_arr; 
     }
 };
