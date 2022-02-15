@@ -24,10 +24,10 @@
 #define N4 3//число столбцов КЕРНЕЛА2
 #define L4 64//число кернелов и выходных изображений соответственно
 #define KER2 M4*N4*L4*C2//длина вектора кернела2
-#define C2 L3// количество выходных изображений из conv_2d_2 = количеству входных в conv_2d_1
+#define C2 L3// количество входных изображений из conv_2d_2 = количеству входных в conv_2d_1
 #define M5 ((M3-M4+2*ZERO_PAD)/STRIDE2+1)
 #define N5 ((N3-N4+2*ZERO_PAD)/STRIDE2+1)
-#define CONV_ED2 M5*N5*C2
+#define CONV_ED2 M5*N5*L4
 #define BIASES2 64
 
 //для max_pool
