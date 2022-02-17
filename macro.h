@@ -1,4 +1,7 @@
 #define DT_LENGTH 32 
+
+//#define TB_OUTPUT 
+
 //для conv_2d_1 и conv_2d_2
 #define M1 3//число строк КЕРНЕЛА1 
 #define N1 3//число столбцов КЕРНЕЛА1
@@ -33,10 +36,11 @@
 //для max_pool
 #define P1 2//число строк КЕРНЕЛА3(POOL) 
 #define P2 2//число столбцов КЕРНЕЛА3(POOL)
-#define F_M1 M3//строки входной на POOL
-#define F_M2 N3//столбцы входной на POOL
-#define F_M3 L3//число входных на POOL матриц
+#define F_M1 M5//строки входной на POOL
+#define F_M2 N5//столбцы входной на POOL
+#define F_M3 L4//число входных на POOL матриц
 #define POOL_STRIDE 2// !! не нужен ??
+#define POOL_IN F_M1*F_M2*F_M3
 
 //метод почти такой же как и для conv
 #define POOLOUT1 ((F_M1-P1)/POOL_STRIDE +1)

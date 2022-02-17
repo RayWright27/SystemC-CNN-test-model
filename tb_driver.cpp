@@ -189,19 +189,21 @@ void tb_driver::conv_2d_1_sink(void){
                         }
                     }
             } 
-            
-            cout<<"[отладочный вывод][DRI_TB] результат CONV_2D_1: "<<endl;
-            for (int i = 0; i < L3; i++) {
-                for (int j = 0; j < M3; j++) {
-                    for (int k = 0; k < N3; k++) {
-                        cout<<std::fixed <<std::setprecision(7)<< conv_2d_1_result_arr[i][j][k] << " ";
+            #ifdef TB_OUTPUT    
+                cout<<"[отладочный вывод][DRI_TB] результат CONV_2D_1: "<<endl;
+                for (int i = 0; i < L3; i++) {
+                    for (int j = 0; j < M3; j++) {
+                        for (int k = 0; k < N3; k++) {
+                            cout<<std::fixed <<std::setprecision(7)<< conv_2d_1_result_arr[i][j][k] << " ";
+                        }
+                        cout << endl;
                     }
-                    cout << endl;
-                }
-                cout << "_________________[CONV_2D_1]" << endl;
-                cout << endl << endl;
-            } 
-            cout << endl << endl<< endl << endl<< endl << endl<< endl << endl<< endl << endl<< endl << endl<< endl << endl;
+                    cout << "_________________[CONV_2D_1]" << endl;
+                    cout << endl << endl;
+                } 
+                cout << endl << endl<< endl << endl<< endl << endl<< endl << endl<< endl << endl<< endl << endl<< endl << endl;
+            #endif
+
             conv_2d_1_fetched = sc_logic(1);
 /**/    }
         else{
@@ -307,18 +309,19 @@ void tb_driver::conv_2d_2_sink(void){
                         }
                     }
             } 
-            
-            cout<<"[отладочный вывод][DRI_TB] результат CONV_2D_2:"<<endl;
-            for (int i = 0; i < L4; i++) {
-                for (int j = 0; j < M5; j++) {
-                    for (int k = 0; k < N5; k++) {
-                        cout <<std::setprecision(7)<<std::fixed<< conv_2d_2_result_arr[i][j][k] << " ";
+            #ifdef TB_OUTPUT 
+                cout<<"[отладочный вывод][DRI_TB] результат CONV_2D_2:"<<endl;
+                for (int i = 0; i < L4; i++) {
+                    for (int j = 0; j < M5; j++) {
+                        for (int k = 0; k < N5; k++) {
+                            cout <<std::setprecision(7)<<std::fixed<< conv_2d_2_result_arr[i][j][k] << " ";
+                        }
+                        cout << endl;
                     }
-                    cout << endl;
+                    cout << "_________________[CONV_2D_2]" << endl;
+                    cout << endl << endl;
                 }
-                cout << "_________________[CONV_2D_2]" << endl;
-                cout << endl << endl;
-            } 
+            #endif 
             conv_2d_2_fetched = sc_logic(1);
         }
         else{
@@ -328,3 +331,8 @@ void tb_driver::conv_2d_2_sink(void){
      //   sc_stop();
     }
 };/**/
+
+void tb_driver::max_pool_2d_1_sink(void){
+
+};
+

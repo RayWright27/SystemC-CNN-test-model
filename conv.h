@@ -65,7 +65,8 @@
 		M1_param(param1),N1_param(param2),L1_param(param3), 
 		KER_param(param4),M2_param(param5),N2_param(param6),
 		C1_param(param7),IMG_param(param8),M3_param(param9),N3_param(param10),
-		L3_param(param11),CONV_ED_param(param12),BIASES_param(param13){
+		L3_param(param11),CONV_ED_param(param12),BIASES_param(param13)
+		{
 			cout<<"------------------------------"<< module_name <<"["<<this<<"]"<< " MODULE PARAMETERS-------------------------------"<<endl;
 			cout<<M1_param<<" "<<L1_param<<" "<<N1_param<<" "<< endl;
 

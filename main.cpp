@@ -11,9 +11,10 @@
 SC_MODULE(TOP){//топ-модуль нейросетевого ускорителя 
     //объявление модулей
     
-    tb_driver *DRI_TB;
-    conv *CONV_2D_1;
-    conv *CONV_2D_2;
+    tb_driver   *DRI_TB;
+    conv        *CONV_2D_1;
+    conv        *CONV_2D_2;
+    max_pool    *MAX_POOL_2D_1;
     // сигналы
     sc_clock clk;//("clk", 10, SC_NS);
     
@@ -40,10 +41,15 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
     sc_signal<bool> conv_2d_2_result_rdy_sig_1;
     sc_signal<double> kernel2_sig, biases2_sig;
     sc_signal<double> conv_2d_2_result_sig_1;
-    sc_signal<bool> dummy;
+    sc_signal<bool> conv_2d_2_result_vld_sig_2;
+    sc_signal<bool> conv_2d_2_result_rdy_sig_2;
+    sc_signal<double> conv_2d_2_result_sig_2;
+
+    sc_signal<double> dummy;
+    sc_signal<bool> dummy1;
     sc_signal<bool> dummy2;
     sc_signal<bool> dummy3;
-    sc_signal<double> dummy4;
+    sc_signal<bool> dummy4;
     
     SC_CTOR(TOP):clk("clk",sc_time(2,SC_NS)){//конструктор копирования clk_sig
         //инстанциируем модули и соединения сигналами
@@ -107,12 +113,24 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         CONV_2D_2->biases_vld(biases2_vld_sig);
         CONV_2D_2->biases_rdy(biases2_rdy_sig);
         CONV_2D_2->conv_2d_result_tb(conv_2d_2_result_sig_1);
-        CONV_2D_2->conv_2d_result_next(dummy4);
+        CONV_2D_2->conv_2d_result_next(conv_2d_2_result_sig_2);
         CONV_2D_2->conv_2d_result_rdy_tb(conv_2d_2_result_rdy_sig_1);
-        CONV_2D_2->conv_2d_result_rdy_next(dummy);
+        CONV_2D_2->conv_2d_result_rdy_next(conv_2d_2_result_rdy_sig_2);
         CONV_2D_2->conv_2d_result_vld_tb(conv_2d_2_result_vld_sig_1); 
-        CONV_2D_2->conv_2d_result_vld_next(dummy3); 
+        CONV_2D_2->conv_2d_result_vld_next(conv_2d_2_result_vld_sig_2); 
         /**/ 
+
+        MAX_POOL_2D_1 = new max_pool("max_pool_2d_1");
+        MAX_POOL_2D_1->clk(clk);
+        MAX_POOL_2D_1->rst(rst);
+        MAX_POOL_2D_1->image(conv_2d_2_result_sig_2);
+        MAX_POOL_2D_1->image_vld(conv_2d_2_result_vld_sig_2);
+        MAX_POOL_2D_1->image_rdy(conv_2d_2_result_rdy_sig_2);
+        MAX_POOL_2D_1->result_max_pool_tb(dummy);
+        MAX_POOL_2D_1->result_rdy_tb(dummy1);
+        MAX_POOL_2D_1->result_rdy_next(dummy2);
+        MAX_POOL_2D_1->result_vld_tb(dummy3);
+        MAX_POOL_2D_1->result_vld_next(dummy4);
     }
 
     //деструктор
@@ -156,7 +174,7 @@ int sc_main(int argc, char* argv[]) {
     //начинаем симуляцию 
     
         int sim_step=1;
-        sc_start(8000000,SC_NS);/*
+        sc_start(10000000,SC_NS);/*
          for (int i=0;i<1000000;i++){
             sc_start(sim_step, SC_NS);
             

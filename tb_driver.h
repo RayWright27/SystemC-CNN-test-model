@@ -49,6 +49,8 @@ SC_MODULE(tb_driver){
 
     sc_logic conv_2d_2_fetched = sc_logic(0);
 
+    sc_logic max_pool_2d_1_fetched = sc_logic(0);
+
 
     void generate_reset(void);
     void generate_kernel(void);
@@ -59,6 +61,8 @@ SC_MODULE(tb_driver){
     void generate_kernel2(void);
     void generate_biases2(void);
     void conv_2d_2_sink(void);
+
+    void max_pool_2d_1_sink(void);
 	
 	SC_CTOR(tb_driver) {
         kernel2_flattened = new double[KER2];

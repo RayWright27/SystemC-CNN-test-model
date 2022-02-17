@@ -2,97 +2,84 @@
 #include <macro.h>
 
 SC_MODULE(max_pool) {
-	sc_in<bool> clk, rst_n;
-	sc_in<double> featuremap[CONV_ED];
-	sc_out<double> pooled_featuremap[POOL_ED];
+	
+	//порты
+	sc_in<bool> clk, rst;
+
+	sc_in<bool> image_vld;
+	sc_out<bool> image_rdy;
+
+	sc_in<bool> result_rdy_tb;
+	sc_out<bool> result_vld_tb;
+	sc_in<bool> result_rdy_next;
+	sc_out<bool> result_vld_next;
+
+	sc_in<double> image;
+	sc_out<double> result_max_pool_tb;
+	
+
+	sc_logic image_recieved = sc_logic(0);
+	sc_logic max_pool_done = sc_logic(0);
+
+	double value = 0;
+	double* featuremap;
+	double*** featuremap_in;
+	double*** result;
+	double* max_pooled;
+
+
+	double maximum (double a, double b);
+	void recieve_image(void);
+	void max_pooling(void);
+	void send_to_dri_tb(void);
+	void send_to_next(void);
 
 	SC_CTOR(max_pool) {
-		SC_METHOD(max_pooling);
-		sensitive_pos << clk; // позитивный clock
-		sensitive_neg << rst_n; // негативный сброс
+		cout<<"------------------------------ MAX_POOL_2D_1 "<<"["<<this<<"]"<< "-------------------------------"<<endl;
+		featuremap = new double[POOL_IN];
+
+		featuremap_in = new double**[F_M3];
+		for (int j = 0; j < F_M3; j++){
+			featuremap_in[j] = new double*[F_M2];
+			for (int i = 0; i < F_M2; i++){
+				featuremap_in[j][i] = new double[F_M1];
+			}
+		}
+		result = new double**[POOLOUT3];
+		for (int j = 0; j < POOLOUT3; j++){
+			result[j] = new double*[POOLOUT2];
+			for (int i = 0; i < POOLOUT2; i++){
+				result[j][i] = new double[POOLOUT1];
+			}
+		}
+		max_pooled = new double[POOL_ED];
+		SC_THREAD(recieve_image);
+		SC_THREAD(max_pooling);
+		SC_THREAD(send_to_dri_tb);
+		SC_THREAD(send_to_next);
+		reset_signal_is(rst, true);
 	}
 
-	double maximum(double a, double b){
-			if (a > b) {
-				return a;
-			}
-			else if (a < b) {
-				return b;
-			}
-			else if (a = b) {
-				return a;
-			}
-			return 0;
+	~max_pool(){
+	delete[] featuremap;
+
+	for (int j = 0; j < F_M3; j++){
+		for (int i = 0; i < F_M2; i++){
+			delete[] featuremap_in[j][i];
+		}
+		delete[] featuremap_in[j];
 	}
+	delete[] featuremap_in;
 
-	void max_pooling(void) {
-		double featuremap_in[L3][M3][N3];
-		for (int k = 0; k < L3; k++) {
-			for (int i = 0; i < M3; i++) {
-				for (int j = 0; j < N3; j++) {
-					featuremap_in[k][i][j]=featuremap[k * N3 * M3 + i * N3 + j].read();//применеяем ReLU
-				}
-			}
+	for (int j = 0; j < POOLOUT3; j++){
+		for (int i = 0; i < POOLOUT2; i++){
+			delete[] result[j][i];
 		}
-		for (int i = 0; i < L3; i++) {
-			for (int j = 0; j < M3; j++) {
-				for (int k = 0; k < N3; k++) {
-					cout << featuremap_in[i][j][k] << " ";
-				}
-				cout << endl;
-			}
-			cout << "_________" << endl;
-		}
-		cout << endl;
-		
-		cout << "[отладочный вывод][max_pooling] размеры кернела:"<< " P1 = " << P1<< " P2 = " << P2<< endl;
-		cout << "размеры выходной матрицы: " << endl;
-		cout << "POOLOUT1= " << POOLOUT1 << " POOLOUT2= " << POOLOUT2 << " POOLOUT3= " << POOLOUT3<< endl;
-		cout << endl;
-		// сама операция
-
-		double result[POOLOUT3][POOLOUT1][POOLOUT2];
-
-		for (int k = 0; k < POOLOUT3; k++) {
-			for (int i = 0; i < POOLOUT1; i++) {//сдвиг кернела в матрице признаков
-				for (int j = 0; j < POOLOUT2; j++) {
-					for (int m = 0; m < P1; m++) {
-						for (int n = 0; n < P2; n++) {
-							double value = featuremap_in[k][i * P1 + m][j * P2 + n];
-							result[k][i][j] = maximum(result[k][i][j], value);
-						}
-						double value = 0;
-						
-					}
-				}
-			}
-		}
-
-		cout << "[отладочный вывод][max_pooling] результат" << endl;
-		for (int k = 0; k < POOLOUT3; k++) {
-			for (int i = 0; i < POOLOUT1; i++) {
-				for (int j = 0; j < POOLOUT2; j++) {
-					cout << result[k][i][j]<<" ";
-				}
-				cout << endl;
-			}
-			cout << "_________" << endl;
-		}
-		cout << endl;
-
-		double TEST[POOL_ED];
-
-		for (int k = 0; k < POOLOUT3; k++) {
-			for (int i = 0; i < POOLOUT1; i++) {
-				for (int j = 0; j < POOLOUT2; j++) {
-					pooled_featuremap[k * POOLOUT1 * POOLOUT2 + i * POOLOUT1 + j]=result[k][i][j];
-				}
-			}
-		}
-		//cout<<"@" << sc_time_stamp() <<" pooling layer value calculated"<<endl;
-		/*for (int j = 0; j < POOL_ED; j++) {
-			cout << pooled_featuremap[j] << " ";
-		}
-		cout << endl;*/
+		delete[] result[j];
 	}
+	delete[] result;
+
+	delete[] max_pooled;
+}
 };
+

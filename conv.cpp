@@ -224,10 +224,10 @@ void conv::convolution(void) {
 };/**/
 
 void conv::send_to_dri_tb(void){
-	conv_2d_result_tb.write(0);
+	//conv_2d_result_tb.write(0);
 	conv_2d_result_vld_tb.write(0);
 	while(true){
-		if ( conv_done == 1){
+		if ( conv_done == sc_logic(1) ){
 			for (int i=0;i<CONV_ED_param;i++){
 					conv_2d_result_vld_tb.write(1);
 					do{
@@ -247,10 +247,10 @@ void conv::send_to_dri_tb(void){
 };/**/
 
 void conv::send_to_next_layer(void){
-	conv_2d_result_next.write(0);
+	//conv_2d_result_next.write(0);
 	conv_2d_result_vld_next.write(0);
 	while(true){
-		if ( conv_done == 1){
+		if ( conv_done == sc_logic(1)){
 			for (int i=0;i<CONV_ED_param;i++){
 					conv_2d_result_vld_next.write(1);
 					do{
