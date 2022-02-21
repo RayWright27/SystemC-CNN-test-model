@@ -34,7 +34,7 @@ void max_pool::recieve_image(void){
             }
         }
         image_recieved = sc_logic(1);
-        
+        /*
         for (int i = 0; i < F_M3; i++) {
             for (int j = 0; j < F_M2; j++) {
                 for (int k = 0; k < F_M1; k++) {
@@ -80,8 +80,8 @@ void max_pool::max_pooling(void) {
                     }
                 }
             }
-            max_pool_done = sc_logic(0);
-
+            max_pool_done = sc_logic(1);
+/*
             cout << "[отладочный вывод][max_pooling] результат" << endl;
             for (int k = 0; k < POOLOUT3; k++) {
                 for (int i = 0; i < POOLOUT2; i++) {
@@ -93,6 +93,7 @@ void max_pool::max_pooling(void) {
                 cout << "_________" << endl;
             }
             cout << endl;
+            /**/
             for (int k = 0; k < POOLOUT3; k++) {
 				for (int i = 0; i < POOLOUT2; i++) {
 					for (int j = 0; j < POOLOUT1; j++) {
@@ -108,19 +109,20 @@ void max_pool::max_pooling(void) {
 };
 
 void max_pool::send_to_dri_tb(void){
-    result_vld_tb.write(0);
+    max_pool_result_vld_tb.write(0);
     while(true){
-        if( max_pool_done == sc_logic(1)){
+        if( max_pool_done == sc_logic(1) and max_pool_result_sent_tb == sc_logic(0)){
             for(int i = 0; i < POOL_ED; i++){
-                result_vld_tb.write(0);
+                max_pool_result_vld_tb.write(1);
                 do{
                     wait(clk->posedge_event());
-                }while (!result_rdy_tb.read());
-                result_max_pool.write(max_pooled[i]);
-                result_vld_tb.write(0);
+                }while (!max_pool_result_rdy_tb.read());
+                max_pool_result_tb.write(max_pooled[i]);
+                max_pool_result_vld_tb.write(0);
             }
-            result_max_pool.write(0);
+            max_pool_result_tb.write(0);
             cout<<"@"<<sc_time_stamp()<<" max_pool_2d_1 ["<<this<<"] data transmitted to tb"<<endl;
+            max_pool_result_sent_tb = sc_logic(1);
         }
         else{
             wait(clk->posedge_event());
@@ -129,19 +131,20 @@ void max_pool::send_to_dri_tb(void){
 };
 
 void max_pool::send_to_next(void){
-    result_vld_next.write(0);
+    max_pool_result_vld_next.write(0);
     while(true){
-        if( max_pool_done == sc_logic(1)){
+        if( max_pool_done == sc_logic(1) and max_pool_result_sent_next == sc_logic(0)){
             for(int i = 0; i < POOL_ED; i++){
-                result_vld_next.write(0);
+                max_pool_result_vld_next.write(1);
                 do{
                     wait(clk->posedge_event());
-                }while (!result_rdy_next.read());
-                result_max_pool.write(max_pooled[i]);
-                result_vld_next.write(0);
+                }while (!max_pool_result_rdy_next.read());
+                max_pool_result_next.write(max_pooled[i]);
+                max_pool_result_vld_next.write(0);
             }
-            result_max_pool.write(0);
+            max_pool_result_next.write(0);
             cout<<"@"<<sc_time_stamp()<<" max_pool_2d_1 ["<<this<<"] data transmitted to next layer"<<endl;
+            max_pool_result_sent_next = sc_logic(1);
         }
         else{
             wait(clk->posedge_event());

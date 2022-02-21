@@ -15,41 +15,70 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
     conv        *CONV_2D_1;
     conv        *CONV_2D_2;
     max_pool    *MAX_POOL_2D_1;
+    dense       *DENSE1;
+    dense       *DENSE2;
     // сигналы
     sc_clock clk;//("clk", 10, SC_NS);
     
-    sc_signal<bool> rst;
-    sc_signal<bool> kernel_rdy_sig;//готовность приёма/передачи данных кернела
-    sc_signal<bool> kernel_vld_sig;//=1 когда данные кернела видны для считывания 
-    sc_signal<bool> image_rdy_sig;
-    sc_signal<bool> image_vld_sig;
-    sc_signal<bool> biases_rdy_sig;
-    sc_signal<bool> biases_vld_sig;
-    sc_signal<bool> conv_2d_1_result_vld_sig_1;
-    sc_signal<bool> conv_2d_1_result_vld_sig_2;
-    sc_signal<bool> conv_2d_1_result_rdy_sig_1;
-    sc_signal<bool> conv_2d_1_result_rdy_sig_2;
+    sc_signal<bool>   rst;
+    sc_signal<bool>   kernel_rdy_sig;//готовность приёма/передачи данных кернела
+    sc_signal<bool>   kernel_vld_sig;//=1 когда данные кернела видны для считывания 
+    sc_signal<bool>   image_rdy_sig;
+    sc_signal<bool>   image_vld_sig;
+    sc_signal<bool>   biases_rdy_sig;
+    sc_signal<bool>   biases_vld_sig;
+    sc_signal<bool>   conv_2d_1_result_vld_sig_1;
+    sc_signal<bool>   conv_2d_1_result_vld_sig_2;
+    sc_signal<bool>   conv_2d_1_result_rdy_sig_1;
+    sc_signal<bool>   conv_2d_1_result_rdy_sig_2;
     sc_signal<double> kernel_sig, image_sig, biases_sig;
     sc_signal<double> conv_2d_1_result_sig_1;
     sc_signal<double> conv_2d_1_result_sig_2;
 
-    sc_signal<bool> kernel2_rdy_sig;//готовность приёма/передачи данных кернела
-    sc_signal<bool> kernel2_vld_sig;//=1 когда данные кернела видны для считывания 
-    sc_signal<bool> biases2_rdy_sig;
-    sc_signal<bool> biases2_vld_sig;
-    sc_signal<bool> conv_2d_2_result_vld_sig_1;
-    sc_signal<bool> conv_2d_2_result_rdy_sig_1;
+    sc_signal<bool>   kernel2_rdy_sig;//готовность приёма/передачи данных кернела
+    sc_signal<bool>   kernel2_vld_sig;//=1 когда данные кернела видны для считывания 
+    sc_signal<bool>   biases2_rdy_sig;
+    sc_signal<bool>   biases2_vld_sig;
+    sc_signal<bool>   conv_2d_2_result_vld_sig_1;
+    sc_signal<bool>   conv_2d_2_result_rdy_sig_1;
     sc_signal<double> kernel2_sig, biases2_sig;
     sc_signal<double> conv_2d_2_result_sig_1;
-    sc_signal<bool> conv_2d_2_result_vld_sig_2;
-    sc_signal<bool> conv_2d_2_result_rdy_sig_2;
+    sc_signal<bool>   conv_2d_2_result_vld_sig_2;
+    sc_signal<bool>   conv_2d_2_result_rdy_sig_2;
     sc_signal<double> conv_2d_2_result_sig_2;
 
-    sc_signal<double> dummy;
-    sc_signal<bool> dummy1;
-    sc_signal<bool> dummy2;
-    sc_signal<bool> dummy3;
-    sc_signal<bool> dummy4;
+    sc_signal<double> result_max_pool_sig_1;
+    sc_signal<double> result_max_pool_sig_2;
+    sc_signal<bool>   max_pool_result_rdy_sig_1;
+    sc_signal<bool>   max_pool_result_vld_sig_1;
+    sc_signal<bool>   max_pool_result_rdy_sig_2;
+    sc_signal<bool>   max_pool_result_vld_sig_2;
+
+    sc_signal<double> coeff_sig;
+    sc_signal<bool>   coeff_rdy_sig;
+    sc_signal<bool>   coeff_vld_sig;
+    sc_signal<double> biases3_sig;
+    sc_signal<bool>   biases3_rdy_sig;
+    sc_signal<bool>   biases3_vld_sig;
+    sc_signal<double> dense1_result_tb_sig;
+    sc_signal<double> dense1_result_next_sig;
+    sc_signal<bool>   dense1_result_rdy_tb_sig;
+    sc_signal<bool>   dense1_result_vld_tb_sig;
+    sc_signal<bool>   dense1_result_rdy_next_sig;
+    sc_signal<bool>   dense1_result_vld_next_sig;
+
+    sc_signal<double> coeff2_sig;
+    sc_signal<bool>   coeff2_rdy_sig;
+    sc_signal<bool>   coeff2_vld_sig;
+    sc_signal<double> biases4_sig;
+    sc_signal<bool>   biases4_rdy_sig;
+    sc_signal<bool>   biases4_vld_sig;
+    sc_signal<double> dense2_result_tb_sig;
+    sc_signal<double> dense2_result_next_sig;
+    sc_signal<bool>   dense2_result_rdy_tb_sig;
+    sc_signal<bool>   dense2_result_vld_tb_sig;
+    sc_signal<bool>   dense2_result_rdy_next_sig;
+    sc_signal<bool>   dense2_result_vld_next_sig;
     
     SC_CTOR(TOP):clk("clk",sc_time(2,SC_NS)){//конструктор копирования clk_sig
         //инстанциируем модули и соединения сигналами
@@ -79,6 +108,31 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         DRI_TB->conv_2d_2_result_vld(conv_2d_2_result_vld_sig_1);
         DRI_TB->conv_2d_2_result_rdy(conv_2d_2_result_rdy_sig_1);
 
+        DRI_TB->max_pool_2d_1_result(result_max_pool_sig_1);
+        DRI_TB->max_pool_2d_1_result_vld(max_pool_result_vld_sig_1);
+        DRI_TB->max_pool_2d_1_result_rdy(max_pool_result_rdy_sig_1);
+
+        DRI_TB->coeff(coeff_sig);
+        DRI_TB->coeff_rdy(coeff_rdy_sig);
+        DRI_TB->coeff_vld(coeff_vld_sig);
+        DRI_TB->biases3(biases3_sig);
+        DRI_TB->biases3_rdy(biases3_rdy_sig);
+        DRI_TB->biases3_vld(biases3_vld_sig);
+        DRI_TB->dense1_result(dense1_result_tb_sig);
+        DRI_TB->dense1_result_vld(dense1_result_vld_tb_sig);
+        DRI_TB->dense1_result_rdy(dense1_result_rdy_tb_sig);
+
+        DRI_TB->coeff2(coeff2_sig);
+        DRI_TB->coeff2_rdy(coeff2_rdy_sig);
+        DRI_TB->coeff2_vld(coeff2_vld_sig);
+        DRI_TB->biases4(biases4_sig);
+        DRI_TB->biases4_rdy(biases4_rdy_sig);
+        DRI_TB->biases4_vld(biases4_vld_sig);
+        DRI_TB->dense2_result(dense2_result_tb_sig);
+        DRI_TB->dense2_result_vld(dense2_result_vld_tb_sig);
+        DRI_TB->dense2_result_rdy(dense2_result_rdy_tb_sig);
+
+
         CONV_2D_1 = new conv("conv_2d_1", M1, N1, L1, KER, M2, N2, C1, IMG, M3, N3, L3, CONV_ED, BIASES);
         //std::shared_ptr<conv> CONV_2D_1(new conv("conv_2d_1", M1, N1, L1, KER, M2, N2, C1, IMG, M3, N3, L3, CONV_ED, BIASES)); 
         CONV_2D_1->clk(clk);
@@ -98,7 +152,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         CONV_2D_1->conv_2d_result_rdy_next(conv_2d_1_result_rdy_sig_2);
         CONV_2D_1->conv_2d_result_vld_tb(conv_2d_1_result_vld_sig_1);
         CONV_2D_1->conv_2d_result_vld_next(conv_2d_1_result_vld_sig_2);
- /**/
+        /**/
 
         CONV_2D_2 = new conv("conv_2d_2", M4, N4, L4, KER2, M3, N3, L3, CONV_ED, M5, N5, L4, CONV_ED2, BIASES2);
         CONV_2D_2->clk(clk);
@@ -126,44 +180,64 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         MAX_POOL_2D_1->image(conv_2d_2_result_sig_2);
         MAX_POOL_2D_1->image_vld(conv_2d_2_result_vld_sig_2);
         MAX_POOL_2D_1->image_rdy(conv_2d_2_result_rdy_sig_2);
-        MAX_POOL_2D_1->result_max_pool_tb(dummy);
-        MAX_POOL_2D_1->result_rdy_tb(dummy1);
-        MAX_POOL_2D_1->result_rdy_next(dummy2);
-        MAX_POOL_2D_1->result_vld_tb(dummy3);
-        MAX_POOL_2D_1->result_vld_next(dummy4);
-    }
+        MAX_POOL_2D_1->max_pool_result_tb(result_max_pool_sig_1);
+        MAX_POOL_2D_1->max_pool_result_next(result_max_pool_sig_2);
+        MAX_POOL_2D_1->max_pool_result_rdy_tb(max_pool_result_rdy_sig_1);
+        MAX_POOL_2D_1->max_pool_result_rdy_next(max_pool_result_rdy_sig_2);
+        MAX_POOL_2D_1->max_pool_result_vld_tb(max_pool_result_vld_sig_1);
+        MAX_POOL_2D_1->max_pool_result_vld_next(max_pool_result_vld_sig_2);
+        
+        DENSE1 = new dense("dense1", POOL_ED, DENSE1_COEFF1, 
+        DENSE1_COEFF2, DENSE1_COEFF, BIASES3, DENSE1_OUT);
+        DENSE1->clk(clk);
+        DENSE1->rst(rst);
+        DENSE1->input(result_max_pool_sig_2);
+        DENSE1->input_vld(max_pool_result_vld_sig_2);
+        DENSE1->input_rdy(max_pool_result_rdy_sig_2);
+        DENSE1->biases(biases3_sig);
+        DENSE1->biases_vld(biases3_vld_sig);
+        DENSE1->biases_rdy(biases3_rdy_sig);
+        DENSE1->coeff(coeff_sig);
+        DENSE1->coeff_vld(coeff_vld_sig);
+        DENSE1->coeff_rdy(coeff_rdy_sig);
+        DENSE1->dense_result_tb(dense1_result_tb_sig);
+        DENSE1->dense_result_next(dense1_result_next_sig);
+        DENSE1->dense_result_rdy_tb(dense1_result_rdy_tb_sig);
+        DENSE1->dense_result_rdy_next(dense1_result_rdy_next_sig);
+        DENSE1->dense_result_vld_tb(dense1_result_vld_tb_sig);
+        DENSE1->dense_result_vld_next(dense1_result_vld_next_sig);
 
+        DENSE2 = new dense("dense2", DENSE1_OUT, DENSE2_COEFF1, 
+        DENSE2_COEFF2, DENSE2_COEFF, BIASES4, DENSE2_OUT);
+        DENSE2->clk(clk);
+        DENSE2->rst(rst);
+        DENSE2->input(dense1_result_next_sig);
+        DENSE2->input_vld(dense1_result_vld_next_sig);
+        DENSE2->input_rdy(dense1_result_rdy_next_sig);
+        DENSE2->biases(biases4_sig);
+        DENSE2->biases_vld(biases4_vld_sig);
+        DENSE2->biases_rdy(biases4_rdy_sig);
+        DENSE2->coeff(coeff2_sig);
+        DENSE2->coeff_vld(coeff2_vld_sig);
+        DENSE2->coeff_rdy(coeff2_rdy_sig);
+        DENSE2->dense_result_tb(dense2_result_tb_sig);
+        DENSE2->dense_result_next(dense2_result_next_sig);
+        DENSE2->dense_result_rdy_tb(dense2_result_rdy_tb_sig);
+        DENSE2->dense_result_rdy_next(dense2_result_rdy_next_sig);
+        DENSE2->dense_result_vld_tb(dense2_result_vld_tb_sig);
+        DENSE2->dense_result_vld_next(dense2_result_vld_next_sig);
+/**/
+    } 
     //деструктор
     ~TOP(){
         delete DRI_TB;
         delete CONV_2D_1;
         delete CONV_2D_2;
+        delete MAX_POOL_2D_1;
+        delete DENSE1;
+        delete DENSE2;
     }
-
-
-    // (old) инстанциируем модули и соединяем сигналы
-/* 
-    /* max_pool DUT2("DUT2");
-    DUT2.clk(clk);
-    DUT2.rst_n(rst_n);
-    for (int k = 0; k < CONV_ED; k++) {
-        DUT2.featuremap[k](convolved_mat_sig[k]);
-    }
-    for (int i = 0; i < POOL_ED; i++) {
-        DUT2.pooled_featuremap[i](pooled_featuremap_sig[i]);
-    }
-
-    dense DUT3("DUT3");
-    DUT3.clk(clk);
-    DUT3.rst_n(rst_n);
-    for (int k = 0; k < POOL_ED; k++) {
-        DUT3.dense_input[k](pooled_featuremap_sig[k]);
-    }
-    for (int i = 0; i < DENSE_KER2; i++) {
-        DUT3.dense_output[i](output_sig[i]);
-    } */
-
-};
+}; 
 
 TOP *top = NULL;//чтобы не указывало на какой-то случайный участок памяти
 
@@ -174,12 +248,14 @@ int sc_main(int argc, char* argv[]) {
     //начинаем симуляцию 
     
         int sim_step=1;
-        sc_start(10000000,SC_NS);/*
-         for (int i=0;i<1000000;i++){
+        sc_start(10000000,SC_NS);
+/*
+        for (int i = 0; i < 1000000; i++){
+            
             sc_start(sim_step, SC_NS);
             
             cout << "clk = "<<top->clk<<"  @ "<<sc_time_stamp()<<endl;
-            /**//*
+/**//*
             cout<<" kernel_rdy = "<<top->kernel_rdy_sig<<"| ";
             cout<<" kernel_vld = "<<top->kernel_vld_sig<<"| ";
             cout<<" kernel_sig = "<<top->kernel_sig<<endl;
@@ -189,15 +265,10 @@ int sc_main(int argc, char* argv[]) {
             cout<<" biases_rdy = "<<top->biases_rdy_sig<<"| ";
             cout<<" biases_vld = "<<top->biases_vld_sig<<"| ";
             cout<<" biases_sig = "<<top->biases_sig<<endl;/**/
-            /*
-            cout<<" conv_2d_1_result_rdy = "<<top->conv_2d_1_result_rdy_sig_1<<"| ";
-            cout<<" conv_2d_1_result_vld = "<<top->conv_2d_1_result_vld_sig_1<<"| ";
-            cout<<" conv_2d_1_result_sig = "<<top->conv_2d_1_result_sig_1<<endl<<endl; 
-
-
-            
+ /*               cout<<sc_time_stamp()<<" ";
+                cout<<" biases_recieved = "<<top->DENSE1->biases_recieved;
+                cout<<" coeff_recieved = "<<top->DENSE1->coeff_recieved;
+                cout<<" input_recieved = "<<top->DENSE1->input_recieved<<endl<<endl; 
         } /**/
-     sc_stop();
- 
     return 0;
 }

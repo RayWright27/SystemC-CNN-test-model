@@ -1,6 +1,6 @@
 #define DT_LENGTH 32 
 
-//#define TB_OUTPUT 
+#define TB_OUTPUT 
 
 //для conv_2d_1 и conv_2d_2
 #define M1 3//число строк КЕРНЕЛА1 
@@ -49,5 +49,16 @@
 #define POOL_ED POOLOUT1*POOLOUT2*POOLOUT3
 
 //dense.h
-#define DENSE_KER1 POOL_ED
-#define DENSE_KER2 10
+#define DENSE1_COEFF1 POOL_ED
+#define DENSE1_COEFF2 128
+#define DENSE1_COEFF DENSE1_COEFF1*DENSE1_COEFF2
+#define BIASES3 128
+#define DENSE1_OUT 128 
+
+#define DENSE2_COEFF1 DENSE1_OUT
+#define DENSE2_COEFF2 10
+#define DENSE2_COEFF DENSE2_COEFF1*DENSE2_COEFF2
+#define BIASES4 10
+#define DENSE2_OUT 10 
+
+

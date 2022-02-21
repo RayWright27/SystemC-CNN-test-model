@@ -4,28 +4,31 @@
 SC_MODULE(max_pool) {
 	
 	//порты
-	sc_in<bool> clk, rst;
+	sc_in<bool> 		clk, rst;
 
-	sc_in<bool> image_vld;
-	sc_out<bool> image_rdy;
+	sc_in<bool> 		image_vld;
+	sc_out<bool> 		image_rdy;
 
-	sc_in<bool> result_rdy_tb;
-	sc_out<bool> result_vld_tb;
-	sc_in<bool> result_rdy_next;
-	sc_out<bool> result_vld_next;
+	sc_in<bool> 		max_pool_result_rdy_tb;
+	sc_out<bool> 		max_pool_result_vld_tb;
+	sc_in<bool> 		max_pool_result_rdy_next;
+	sc_out<bool> 		max_pool_result_vld_next;
 
-	sc_in<double> image;
-	sc_out<double> result_max_pool_tb;
+	sc_in<double> 		image;
+	sc_out<double> 		max_pool_result_tb;
+	sc_out<double> 		max_pool_result_next;
 	
 
-	sc_logic image_recieved = sc_logic(0);
-	sc_logic max_pool_done = sc_logic(0);
+	sc_logic 			image_recieved = sc_logic(0);
+	sc_logic 			max_pool_done = sc_logic(0);
+	sc_logic			max_pool_result_sent_tb = sc_logic(0);
+	sc_logic			max_pool_result_sent_next = sc_logic(0);
 
-	double value = 0;
-	double* featuremap;
-	double*** featuremap_in;
-	double*** result;
-	double* max_pooled;
+	double 				value = 0;
+	double* 			featuremap;
+	double*** 			featuremap_in;
+	double*** 			result;
+	double* 			max_pooled;
 
 
 	double maximum (double a, double b);

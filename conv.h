@@ -2,55 +2,54 @@
 #include <systemc.h>
 	SC_MODULE(conv) {
 		SC_HAS_PROCESS(conv);
-		int M1_param;
-		int L1_param;
-		int N1_param;
-		int KER_param;
-		int M2_param;
-		int N2_param;
-		int C1_param;
-		int IMG_param;
-		int M3_param;
-		int N3_param;
-		int L3_param;
-		int CONV_ED_param;
-		int BIASES_param;
-		char* module_name;
+		int 			M1_param;
+		int 			L1_param;
+		int 			N1_param;
+		int 			KER_param;
+		int				M2_param;
+		int 			N2_param;
+		int 			C1_param;
+		int 			IMG_param;
+		int 			M3_param;
+		int 			N3_param;
+		int 			L3_param;
+		int 			CONV_ED_param;
+		int 			BIASES_param;
+		char* 			module_name;
 		
-
 		//порты
-		sc_in<bool> clk, rst;
+		sc_in<bool> 	clk, rst;
 
-		sc_in<bool> kernel_vld;
-		sc_out<bool> kernel_rdy;
+		sc_in<bool> 	kernel_vld;
+		sc_out<bool> 	kernel_rdy;
 
-		sc_in<bool> image_vld;
-		sc_out<bool> image_rdy;
+		sc_in<bool> 	image_vld;
+		sc_out<bool> 	image_rdy;
 
-		sc_in<bool> biases_vld;
-		sc_out<bool> biases_rdy;
+		sc_in<bool> 	biases_vld;
+		sc_out<bool> 	biases_rdy;
 
-		sc_in<bool> conv_2d_result_rdy_tb;
-		sc_in<bool> conv_2d_result_rdy_next;
-		sc_out<bool> conv_2d_result_vld_tb;
-		sc_out<bool> conv_2d_result_vld_next;
+		sc_in<bool> 	conv_2d_result_rdy_tb;
+		sc_in<bool> 	conv_2d_result_rdy_next;
+		sc_out<bool> 	conv_2d_result_vld_tb;
+		sc_out<bool> 	conv_2d_result_vld_next;
 
-		sc_in<double> biases;
-		sc_in<double> kernel;
-		sc_in<double> image;
-		sc_out<double> conv_2d_result_tb;
-		sc_out<double> conv_2d_result_next;
+		sc_in<double> 	biases;
+		sc_in<double> 	kernel;
+		sc_in<double> 	image;
+		sc_out<double> 	conv_2d_result_tb;
+		sc_out<double> 	conv_2d_result_next;
 
-		sc_logic kernel_recieved = sc_logic(0);
-		sc_logic image_recieved = sc_logic(0);
-		sc_logic biases_recieved = sc_logic(0);
-		sc_logic conv_done = sc_logic(0);
+		sc_logic 		kernel_recieved = sc_logic(0);
+		sc_logic 		image_recieved = sc_logic(0);
+		sc_logic 		biases_recieved = sc_logic(0);
+		sc_logic 		conv_done = sc_logic(0);
 
-		double**** kernel_in;// = new double***[L1_param];//указатель на динамический массив т.к. в С++ недоступна инициализация массива переменной длинны
-		double*** image_in;// = new double**[M2_param];
-		double* biases_in;// = new double[BIASES_param];
-		double*** result;// = new double**[L3_param];
-		double* convolved_mat;// = new double[CONV_ED_param];
+		double**** 		kernel_in;// = new double***[L1_param];//указатель на динамический массив т.к. в С++ недоступна инициализация массива переменной длинны
+		double*** 		image_in;// = new double**[M2_param];
+		double* 		biases_in;// = new double[BIASES_param];
+		double*** 		result;// = new double**[L3_param];
+		double* 		convolved_mat;// = new double[CONV_ED_param];
 		
 		void recieve_image(void);
 		void recieve_biases(void);
@@ -69,7 +68,7 @@
 		{
 			cout<<"------------------------------"<< module_name <<"["<<this<<"]"<< " MODULE PARAMETERS-------------------------------"<<endl;
 			cout<<M1_param<<" "<<L1_param<<" "<<N1_param<<" "<< endl;
-
+			
 			//объявление динамического kernel_in
 			kernel_in = new double***[C1_param];
 			for (int k=0; k<C1_param;k++){

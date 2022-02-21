@@ -2,13 +2,10 @@
 #include "ReLU.h"
 #include <iomanip>
 void conv::recieve_image(void) {
-	
 	//инициализируем хэндшейк
 	image_rdy.write(0);
 	wait(clk->posedge_event());
-
 	double image_in_flattened[IMG_param];//вектор, принимающий значения из порта
-
 	while(true){
 		if(image_recieved == sc_logic(1)){
 			while(true){
@@ -16,52 +13,47 @@ void conv::recieve_image(void) {
 				wait(clk->posedge_event());
 			}
 		}
-		for (int i=0; i<IMG_param; i++){
-			image_rdy.write(1);
-			do{
-				wait(clk->posedge_event());
-			}while (!image_vld.read());
-			image_in_flattened[i]=image.read();
-			image_rdy.write(0);			
-		}
-
-		for (int k = 0; k < C1_param; ++k) {
-			for (int j = 0; j < M2_param; j++){
-				for (int i = 0; i < N2_param; ++i) {
-				
-					image_in[k][j][i] = image_in_flattened[k * M2_param * N2_param + j *N2_param + i]; //можно цикл по C1 сделать в конце
+		else{
+			for (int i=0; i<IMG_param; i++){
+				image_rdy.write(1);
+				do{
+					wait(clk->posedge_event());
+				}while (!image_vld.read());
+				image_in_flattened[i]=image.read();
+				image_rdy.write(0);			
+			}
+			for (int k = 0; k < C1_param; ++k) {
+				for (int j = 0; j < M2_param; j++){
+					for (int i = 0; i < N2_param; ++i) {
+					
+						image_in[k][j][i] = image_in_flattened[k * M2_param * N2_param + j *N2_param + i]; //можно цикл по C1 сделать в конце
+					}
 				}
 			}
-		}
-	/*	
-		cout << "[отладочный вывод]["<< this <<"] изображение:" << endl;
-		cout <<"размеры: "<< M2_param <<" "<< N2_param<<" " << C1_param<<endl;
-		for (int k = 0; k < C1_param; ++k) {
-			for (int j = 0; j < M2_param; j++){
-				for (int i = 0; i < N2_param; ++i) {
-				
-					cout <<std::setprecision(3)<< image_in[k][j][i] << " ";
+		/*	
+			cout << "[отладочный вывод]["<< this <<"] изображение:" << endl;
+			cout <<"размеры: "<< M2_param <<" "<< N2_param<<" " << C1_param<<endl;
+			for (int k = 0; k < C1_param; ++k) {
+				for (int j = 0; j < M2_param; j++){
+					for (int i = 0; i < N2_param; ++i) {
+					
+						cout <<std::setprecision(3)<< image_in[k][j][i] << " ";
+					}
+					cout << endl;
 				}
 				cout << endl;
+				cout << endl;
 			}
-			cout << endl;
-			cout << endl;
+			*/
+			image_recieved = sc_logic(1);
+			cout<<"IMG RECIEVED = "<<image_recieved<<" "<<" KER RECIEVED = "<<kernel_recieved<<" BIASES RECIEVED = "<<biases_recieved<<endl;
 		}
-		*/
-		
-		image_recieved = sc_logic(1);
-
-		cout<<"IMG RECIEVED = "<<image_recieved<<" "<<" KER RECIEVED = "<<kernel_recieved<<" BIASES RECIEVED = "<<biases_recieved<<endl;
-		}
-	
-		
+	}	
 };/**/
 
 void conv::recieve_biases(void) {
 	biases_rdy.write(0);
 	wait(clk->posedge_event());
-
-
 	while(true){
 		if(biases_recieved == sc_logic(1)){
 			while(true){
@@ -91,9 +83,7 @@ void conv::recieve_kernel(void) {
 	//инициализируем хэндшейк
 	kernel_rdy.write(0);
 	wait(clk->posedge_event());
-
 	double kernel_in_flattened[KER_param]={};//вектор, принимающий значения из порта
-	
 	while(true){
 		if(kernel_recieved == sc_logic(1)){
 			while(true){
@@ -101,22 +91,18 @@ void conv::recieve_kernel(void) {
 				wait(clk->posedge_event());
 			}
 		}
-		for (int i=0; i<KER_param; i++){
+		for (int i = 0; i < KER_param; i++){
 			kernel_rdy.write(1);
 			do{
 				wait(clk->posedge_event());
 			}while (!kernel_vld.read());
-			
-				kernel_in_flattened[i]=kernel.read();
-			
+			kernel_in_flattened[i] = kernel.read();
 			kernel_rdy.write(0);
 		}
-		
 		//разворачивание вектора в 3D массив (сделать в отдельный метод) (зачем?)
 		for (int c = 0; c < C1_param; c++){
 			for (int j = 0; j < L1_param; ++j) {
 				for (int i = 0; i < M1_param; ++i) {
-				
 					for (int k = 0; k < N1_param; ++k) {
 						kernel_in[c][j][i][k] = kernel_in_flattened[c * L1_param * M1_param * N1_param + j * M1_param * N1_param + i * N1_param + k];
 					}
