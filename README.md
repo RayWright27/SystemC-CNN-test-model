@@ -3,7 +3,7 @@ This is an **unfinished** test model of CNN, based on cnn.h5 Keras pretrained mo
 
 This model serves as a testing ground for making Keras models in SystemC and contains the following layers:
 
-![Alt Text](https://github.com/RayWright27/SystemC-CNN-test-model/blob/50da54600ef52678dbd33cf20cc8d36ab518ff89/model%20structure.png)
+![Alt Text](https://github.com/RayWright27/SystemC-CNN-test-model/blob/clocked/System-C%20model.png)
 
 tb_driver.h contains image of number 6 in form of grayscale values matix and arbitrary kernel.
 All interfaces are 1d vectors, so on inputs/output ports of some modules 1d vectors transform into 2d matrices and vice versa.
