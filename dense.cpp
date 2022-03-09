@@ -1,4 +1,30 @@
 #include "dense.h"
+#include <math.h>
+void softmax(double* input, size_t size) {
+
+	assert(0 <= size <= sizeof(input) / sizeof(double));
+
+	int i;
+	double m, sum, constant;
+
+	m = -INFINITY;
+	for (i = 0; i < size; ++i) {
+		if (m < input[i]) {
+			m = input[i];
+		}
+	}
+
+	sum = 0.0;
+	for (i = 0; i < size; ++i) {
+		sum += exp(input[i] - m);
+	}
+
+	constant = m + log(sum);
+	for (i = 0; i < size; ++i) {
+		input[i] = exp(input[i] - constant);
+	}
+
+}
 
 void dense::recieve_input(void){
     input_rdy.write(0);
@@ -98,10 +124,20 @@ void dense::dense_func(void) {
                     wait(clk->posedge_event());    
                 }			
             }
-            
-            
              for (int i = 0; i < DENSE_COEFF2_param; i++){
                 dense_result_arr[i] += biases_arr[i];
+                if (func==1){
+                    if (dense_result_arr[i] <= 0) {
+                        dense_result_arr[i]=0;
+                        //wait(clk->posedge_event());
+                        //next_trigger();
+                        cout<<this<<" ReLU!!!"<<endl;
+                    }
+                }
+            }
+            if (func==2){
+                softmax(dense_result_arr, DENSE_COEFF2_param);
+                cout<<this<<" Softmax!!!"<<endl;
             }
             cout<<"@" << sc_time_stamp() <<" dense layer calculated ["
             <<this<<"]"<<endl;

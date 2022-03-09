@@ -26,10 +26,10 @@ void max_pool::recieve_image(void){
             image_rdy.write(0);
         }
         
-        for (int k = 0; k < F_M3; k++) {
-            for (int i = 0; i < F_M2; i++) {
-                for (int j = 0; j < F_M1; j++) {
-                    featuremap_in[k][i][j]=featuremap[k * F_M2 * F_M1 + i * F_M1 + j];
+        for (int k = 0; k < F_M2; k++) {
+            for (int i = 0; i < F_M1; i++) {
+                for (int j = 0; j < F_M3; j++) {
+                    featuremap_in[k][i][j]=featuremap[k * F_M1 * F_M3 + i * F_M3 + j];
                 }
             }
         }
@@ -58,22 +58,22 @@ void max_pool::recieve_image(void){
 };
 
 void max_pool::max_pooling(void) {
-    for (int k = 0; k < POOLOUT3; k++) {
-        for (int i = 0; i < POOLOUT2; i++) {
-            for (int j = 0; j < POOLOUT1; j++) {
+    for (int k = 0; k < POOLOUT2; k++) {
+        for (int i = 0; i < POOLOUT1; i++) {
+            for (int j = 0; j < POOLOUT3; j++) {
                 result[k][i][j]=0;
             }
         }
     }
     while(true){
         if( image_recieved == sc_logic(1)){
-            for (int k = 0; k < POOLOUT3; k++) {
-                for (int i = 0; i < POOLOUT2; i++) {//сдвиг кернела в матрице признаков
-                    for (int j = 0; j < POOLOUT1; j++) {
+            for (int k = 0; k < POOLOUT2; k++) {
+                for (int i = 0; i < POOLOUT1; i++) {//сдвиг кернела в матрице признаков
+                    for (int j = 0; j < P2; j++) {
                         for (int m = 0; m < P1; m++) {
-                            for (int n = 0; n < P2; n++) {
-                                value = featuremap_in[k][i * P1 + m][j * P2 + n];
-                                result[k][i][j] = maximum(result[k][i][j], value);
+                            for (int n = 0; n < POOLOUT3; n++) {
+                                value = featuremap_in[k * P2 + j][i * P1 + m][n];
+                                result[k][i][n] = maximum(result[k][i][n], value);
                                 wait(clk->posedge_event());
                             }       
                         }
@@ -94,10 +94,10 @@ void max_pool::max_pooling(void) {
             }
             cout << endl;
             /**/
-            for (int k = 0; k < POOLOUT3; k++) {
-				for (int i = 0; i < POOLOUT2; i++) {
-					for (int j = 0; j < POOLOUT1; j++) {
-						max_pooled[k*POOLOUT2*POOLOUT1+i*POOLOUT1+j]=result[k][i][j]; 
+            for (int k = 0; k < POOLOUT2; k++) {
+				for (int i = 0; i < POOLOUT1; i++) {
+					for (int j = 0; j < POOLOUT3; j++) {
+						max_pooled[k*POOLOUT1*POOLOUT3+i*POOLOUT3+j]=result[k][i][j]; 
 					}
 				}
 			}

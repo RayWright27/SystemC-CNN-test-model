@@ -41,18 +41,18 @@ SC_MODULE(max_pool) {
 		cout<<"------------------------------ MAX_POOL_2D_1 "<<"["<<this<<"]"<< "-------------------------------"<<endl;
 		featuremap = new double[POOL_IN];
 
-		featuremap_in = new double**[F_M3];
-		for (int j = 0; j < F_M3; j++){
-			featuremap_in[j] = new double*[F_M2];
-			for (int i = 0; i < F_M2; i++){
-				featuremap_in[j][i] = new double[F_M1];
+		featuremap_in = new double**[F_M2];
+		for (int j = 0; j < F_M2; j++){
+			featuremap_in[j] = new double*[F_M1];
+			for (int i = 0; i < F_M1; i++){
+				featuremap_in[j][i] = new double[F_M3];
 			}
 		}
-		result = new double**[POOLOUT3];
-		for (int j = 0; j < POOLOUT3; j++){
-			result[j] = new double*[POOLOUT2];
-			for (int i = 0; i < POOLOUT2; i++){
-				result[j][i] = new double[POOLOUT1];
+		result = new double**[POOLOUT2];
+		for (int j = 0; j < POOLOUT2; j++){
+			result[j] = new double*[POOLOUT1];
+			for (int i = 0; i < POOLOUT1; i++){
+				result[j][i] = new double[POOLOUT3];
 			}
 		}
 		max_pooled = new double[POOL_ED];
@@ -66,16 +66,16 @@ SC_MODULE(max_pool) {
 	~max_pool(){
 	delete[] featuremap;
 
-	for (int j = 0; j < F_M3; j++){
-		for (int i = 0; i < F_M2; i++){
+	for (int j = 0; j < F_M2; j++){
+		for (int i = 0; i < F_M1; i++){
 			delete[] featuremap_in[j][i];
 		}
 		delete[] featuremap_in[j];
 	}
 	delete[] featuremap_in;
 
-	for (int j = 0; j < POOLOUT3; j++){
-		for (int i = 0; i < POOLOUT2; i++){
+	for (int j = 0; j < POOLOUT2; j++){
+		for (int i = 0; i < POOLOUT1; i++){
 			delete[] result[j][i];
 		}
 		delete[] result[j];

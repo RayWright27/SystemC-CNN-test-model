@@ -115,7 +115,13 @@ SC_MODULE(tb_driver){
     void generate_coeff2(void);
     void generate_biases4(void);
     void dense2_sink(void);
-	
+
+    double C[BIASES]={0.0691566914, 0.0087906541, 0.0805735663, 0.0110252723, 0.0001045055, 0.0136789260, 0.0097796526, -0.0016237695, 0.0948802680, 0.0211041402, -0.0034900929, 0.0307639018, 0.0448412858, -0.0014694935, 
+    0.0388998576, 0.0056192460, 0.0029507081, -0.0039654267, 0.0023400388, 0.0503108688, -0.0020105073, -0.0073869051, 0.0047671571, 0.0638136268, 0.0234106053, 0.0156689044, -0.0022752020, 0.0103466120, 0.0103880670, 
+    0.0530131310, -0.0050606704, 0.0142416079};
+	double biases_flattened[BIASES];
+    double biases_tmp;   
+
 	SC_CTOR(tb_driver) {
         kernel2_flattened = new double[KER2];
         conv_2d_2_result_flattened = new double[CONV_ED2];
@@ -127,34 +133,36 @@ SC_MODULE(tb_driver){
 
     /* Поскольку в SystemC есть ограничение по выделяемой памти создаём динамические 
     массивы*/
-        conv_2d_1_result_arr = new double**[L3];
-        for (int i=0; i<L3;i++){
+        conv_2d_1_result_arr = new double**[N3];
+        for (int i=0; i<N3;i++){
             conv_2d_1_result_arr[i] = new double*[M3];
             for (int j=0;j<M3;j++){
-                conv_2d_1_result_arr[i][j] = new double[N3];
+                conv_2d_1_result_arr[i][j] = new double[L3];
             }
         }
 
-        conv_2d_2_result_arr = new double**[L4];
-        for (int i=0; i<L4;i++){
+        conv_2d_2_result_arr = new double**[N5];
+        for (int i=0; i<N5;i++){
             conv_2d_2_result_arr[i] = new double*[M5];
             for (int j=0;j<M5;j++){
-                conv_2d_2_result_arr[i][j] = new double[N5];
+                conv_2d_2_result_arr[i][j] = new double[L4];
             }
         }
 
-        max_pool_2d_1_result_arr = new double**[POOLOUT3];
-        for (int i=0; i<POOLOUT3;i++){
+        max_pool_2d_1_result_arr = new double**[POOLOUT1];
+        for (int i=0; i<POOLOUT1;i++){
             max_pool_2d_1_result_arr[i] = new double*[POOLOUT2];
             for (int j=0;j<POOLOUT2;j++){
-                max_pool_2d_1_result_arr[i][j] = new double[POOLOUT1];
+                max_pool_2d_1_result_arr[i][j] = new double[POOLOUT3];
             }
         }
 
         SC_THREAD(generate_reset);
+//        sensitive<<clk.pos();
         SC_THREAD(generate_kernel);
         SC_THREAD(generate_image); 
         SC_THREAD(generate_biases);
+//        sensitive<<clk.pos();
         SC_THREAD(conv_2d_1_sink);
 
         SC_THREAD(generate_kernel2);
@@ -169,7 +177,7 @@ SC_MODULE(tb_driver){
         
         SC_THREAD(generate_coeff2);
         SC_THREAD(generate_biases4);
-        SC_THREAD(dense2_sink);
+        SC_THREAD(dense2_sink);/**/
     };
 
     ~tb_driver(){
@@ -181,7 +189,7 @@ SC_MODULE(tb_driver){
         delete   kernel2file;
         delete   coefffile;
 
-        for (int i = 0; i < L3; i++) {
+        for (int i = 0; i < N3; i++) {
             for (int j = 0; j < M3; j++) {               
                 delete[] conv_2d_1_result_arr[i][j];
             }
@@ -189,7 +197,7 @@ SC_MODULE(tb_driver){
 		}
         delete[] conv_2d_1_result_arr; 
 
-        for (int i = 0; i < L4; i++) {
+        for (int i = 0; i < N5; i++) {
             for (int j = 0; j < M5; j++) {               
                 delete[] conv_2d_2_result_arr[i][j];
             }
@@ -197,7 +205,7 @@ SC_MODULE(tb_driver){
 		}
         delete[] conv_2d_2_result_arr;
 
-        for (int i = 0; i < POOLOUT3; i++) {
+        for (int i = 0; i < POOLOUT1; i++) {
             for (int j = 0; j < POOLOUT2; j++) {               
                 delete[] max_pool_2d_1_result_arr[i][j];
             }

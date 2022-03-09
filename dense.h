@@ -11,6 +11,7 @@ SC_MODULE(dense) {
 	int		BIASES_param;
 	int		OUT_param;
 	char*	module_name;
+	int 	func;
 
 	//?????
 	sc_in<bool> 	clk, rst;
@@ -56,9 +57,9 @@ SC_MODULE(dense) {
 	void send_to_next(void);
 
 	dense(sc_module_name module_name, int param1, int param2, int param3, 
-	int param4, int param5, int param6):sc_module(module_name), IN_param(param1), 
+	int param4, int param5, int param6, int param7):sc_module(module_name), IN_param(param1), 
 	DENSE_COEFF1_param(param2), DENSE_COEFF2_param(param3), DENSE_COEFF_param(param4),
-	BIASES_param(param5), OUT_param(param6)
+	BIASES_param(param5), OUT_param(param6), func(param7)
 	{
 		cout<<"------------------------------"<< module_name <<"["<<this<<"]"<< " MODULE PARAMETERS-------------------------------"<<endl;
 		

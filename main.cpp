@@ -17,6 +17,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
     max_pool    *MAX_POOL_2D_1;
     dense       *DENSE1;
     dense       *DENSE2;
+    /**/
     // сигналы
     sc_clock clk;//("clk", 10, SC_NS);
     
@@ -133,7 +134,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         DRI_TB->dense2_result_rdy(dense2_result_rdy_tb_sig);
 
 
-        CONV_2D_1 = new conv("conv_2d_1", M1, N1, L1, KER, M2, N2, C1, IMG, M3, N3, L3, CONV_ED, BIASES);
+        CONV_2D_1 = new conv("conv_2d_1", M1, N1, L1, KER, M2, N2, C1, IMG, M3, N3, L3, CONV_ED, BIASES, 0);
         //std::shared_ptr<conv> CONV_2D_1(new conv("conv_2d_1", M1, N1, L1, KER, M2, N2, C1, IMG, M3, N3, L3, CONV_ED, BIASES)); 
         CONV_2D_1->clk(clk);
         CONV_2D_1->rst(rst);
@@ -154,7 +155,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         CONV_2D_1->conv_2d_result_vld_next(conv_2d_1_result_vld_sig_2);
         /**/
 
-        CONV_2D_2 = new conv("conv_2d_2", M4, N4, L4, KER2, M3, N3, L3, CONV_ED, M5, N5, L4, CONV_ED2, BIASES2);
+        CONV_2D_2 = new conv("conv_2d_2", M4, N4, L4, KER2, M3, N3, L3, CONV_ED, M5, N5, L4, CONV_ED2, BIASES2, 0);
         CONV_2D_2->clk(clk);
         CONV_2D_2->rst(rst); 
         CONV_2D_2->kernel(kernel2_sig);
@@ -188,7 +189,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         MAX_POOL_2D_1->max_pool_result_vld_next(max_pool_result_vld_sig_2);
         
         DENSE1 = new dense("dense1", POOL_ED, DENSE1_COEFF1, 
-        DENSE1_COEFF2, DENSE1_COEFF, BIASES3, DENSE1_OUT);
+        DENSE1_COEFF2, DENSE1_COEFF, BIASES3, DENSE1_OUT, 1);
         DENSE1->clk(clk);
         DENSE1->rst(rst);
         DENSE1->input(result_max_pool_sig_2);
@@ -208,7 +209,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         DENSE1->dense_result_vld_next(dense1_result_vld_next_sig);
 
         DENSE2 = new dense("dense2", DENSE1_OUT, DENSE2_COEFF1, 
-        DENSE2_COEFF2, DENSE2_COEFF, BIASES4, DENSE2_OUT);
+        DENSE2_COEFF2, DENSE2_COEFF, BIASES4, DENSE2_OUT, 1);
         DENSE2->clk(clk);
         DENSE2->rst(rst);
         DENSE2->input(dense1_result_next_sig);
@@ -233,9 +234,10 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         delete DRI_TB;
         delete CONV_2D_1;
         delete CONV_2D_2;
-        delete MAX_POOL_2D_1;
-        delete DENSE1;
+       delete MAX_POOL_2D_1;
+       delete DENSE1;
         delete DENSE2;
+        /**/
     }
 }; 
 
@@ -249,12 +251,12 @@ int sc_main(int argc, char* argv[]) {
     
         int sim_step=1;
         sc_start(10000000,SC_NS);
-/*
-        for (int i = 0; i < 1000000; i++){
+
+        for (int i = 0; i <1; i++){
             
             sc_start(sim_step, SC_NS);
             
-            cout << "clk = "<<top->clk<<"  @ "<<sc_time_stamp()<<endl;
+//            cout << "clk = "<<top->clk<<"  @ "<<sc_time_stamp()<<endl;
 /**//*
             cout<<" kernel_rdy = "<<top->kernel_rdy_sig<<"| ";
             cout<<" kernel_vld = "<<top->kernel_vld_sig<<"| ";
@@ -268,7 +270,7 @@ int sc_main(int argc, char* argv[]) {
  /*               cout<<sc_time_stamp()<<" ";
                 cout<<" biases_recieved = "<<top->DENSE1->biases_recieved;
                 cout<<" coeff_recieved = "<<top->DENSE1->coeff_recieved;
-                cout<<" input_recieved = "<<top->DENSE1->input_recieved<<endl<<endl; 
-        } /**/
+                cout<<" input_recieved = "<<top->DENSE1->input_recieved<<endl<<endl; /**/
+        } 
     return 0;
 }
