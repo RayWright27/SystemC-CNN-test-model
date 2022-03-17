@@ -1,8 +1,9 @@
 #include "dense.h"
 #include <math.h>
+#include <assert.h>
 void softmax(double* input, size_t size) {
 
-	assert(0 <= size <= sizeof(input) / sizeof(double));
+//	assert(0 <= size <= sizeof(input) / sizeof(double));
 
 	int i;
 	double m, sum, constant;
@@ -131,13 +132,12 @@ void dense::dense_func(void) {
                         dense_result_arr[i]=0;
                         //wait(clk->posedge_event());
                         //next_trigger();
-                        cout<<this<<" ReLU!!!"<<endl;
                     }
                 }
+                wait(clk->posedge_event());
             }
             if (func==2){
                 softmax(dense_result_arr, DENSE_COEFF2_param);
-                cout<<this<<" Softmax!!!"<<endl;
             }
             cout<<"@" << sc_time_stamp() <<" dense layer calculated ["
             <<this<<"]"<<endl;

@@ -209,7 +209,7 @@ SC_MODULE(TOP){//топ-модуль нейросетевого ускорите
         DENSE1->dense_result_vld_next(dense1_result_vld_next_sig);
 
         DENSE2 = new dense("dense2", DENSE1_OUT, DENSE2_COEFF1, 
-        DENSE2_COEFF2, DENSE2_COEFF, BIASES4, DENSE2_OUT, 1);
+        DENSE2_COEFF2, DENSE2_COEFF, BIASES4, DENSE2_OUT, 2);
         DENSE2->clk(clk);
         DENSE2->rst(rst);
         DENSE2->input(dense1_result_next_sig);

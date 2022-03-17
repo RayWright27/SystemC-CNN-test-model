@@ -69,8 +69,8 @@
 		C1_param(param7),IMG_param(param8),M3_param(param9),N3_param(param10),
 		L3_param(param11),CONV_ED_param(param12),BIASES_param(param13), verbose(param14)
 		{
-			cout<<"------------------------------"<< module_name <<"["<<this<<"]"<< " MODULE PARAMETERS-------------------------------"<<endl;
-			cout<<M1_param<<" "<<L1_param<<" "<<N1_param<<" "<< endl;
+			cout<<"------------------------------"<< module_name <<"["<<this<<"]"<< "-------------------------------"<<endl;
+		//	cout<<M1_param<<" "<<L1_param<<" "<<N1_param<<" "<< endl;
 			
 			//объявление динамического kernel_in
 			kernel_in = new double***[M1_param];//выходные

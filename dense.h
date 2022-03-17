@@ -61,7 +61,7 @@ SC_MODULE(dense) {
 	DENSE_COEFF1_param(param2), DENSE_COEFF2_param(param3), DENSE_COEFF_param(param4),
 	BIASES_param(param5), OUT_param(param6), func(param7)
 	{
-		cout<<"------------------------------"<< module_name <<"["<<this<<"]"<< " MODULE PARAMETERS-------------------------------"<<endl;
+		cout<<"------------------------------"<< module_name <<"["<<this<<"]"<< "-------------------------------"<<endl;
 		
 		coeff_flattened = new double[DENSE_COEFF_param];
 		dense_input = new double[IN_param];
