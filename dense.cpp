@@ -2,9 +2,7 @@
 #include <math.h>
 #include <assert.h>
 void softmax(double* input, size_t size) {
-
 //	assert(0 <= size <= sizeof(input) / sizeof(double));
-
 	int i;
 	double m, sum, constant;
 
@@ -31,26 +29,23 @@ void dense::recieve_input(void){
     input_rdy.write(0);
     while(true){
         if(input_recieved == sc_logic(0)){
-            while(true){
-                for(int i = 0; i < IN_param; i++){ 
-                    input_rdy.write(1);
-                    do{
-                        wait(clk->posedge_event());
-                    }while(!input_vld.read());
-                    dense_input[i]=input.read();
-                    input_rdy.write(0);
-                }
-                input_recieved = sc_logic(1);
-/*               for(int i = 0; i < IN_param; i++){
-                    cout<<dense_input[i]<<endl;
-                }
-                cout<<endl;*/
-                cout<<"@"<<sc_time_stamp()<<" dense input recieved ["<<this<<"]"<<endl;
+            for(int i = 0; i < IN_param; i++){ 
+                input_rdy.write(1);
+                do{
+                    wait(clk->posedge_event());
+                }while(!input_vld.read());
+                dense_input[i]=input.read();
+                input_rdy.write(0);
             }
+            input_recieved = sc_logic(1);
+            cout<<"@"<<sc_time_stamp()<<" dense input recieved ["<<this<<"]"<<endl;
+            for(int i = 0; i < IN_param; i++){
+                cout<<dense_input[i]<<endl;
+            }
+            cout<<endl;/**/
                 
         }
         else if(input_recieved == sc_logic(1)){
-            input_rdy.write(0);
             wait(clk->posedge_event());
             
         }
@@ -188,10 +183,11 @@ void dense::send_to_next(void){
         if(dense_done == sc_logic(1) and dense_result_sent_next == sc_logic(0)){
             for(int i = 0; i < OUT_param; i++){
                 dense_result_vld_next.write(1);
+                dense_result_next.write(dense_result_arr[i]);
                 do{
                     wait(clk->posedge_event());
                 }while(!dense_result_rdy_next.read());
-                dense_result_next.write(dense_result_arr[i]);
+                
                 dense_result_vld_next.write(0);
             }
             dense_result_next.write(0);

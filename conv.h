@@ -45,6 +45,8 @@
 		sc_logic 		image_recieved = sc_logic(0);
 		sc_logic 		biases_recieved = sc_logic(0);
 		sc_logic 		conv_done = sc_logic(0);
+		sc_logic		conv_result_sent_tb = sc_logic(0);
+		sc_logic		conv_result_sent_next = sc_logic(0);
 
 		
 		double**** 		kernel_in;// = new double***[L1_param];//указатель на динамический массив т.к. в С++ недоступна инициализация массива переменной длинны

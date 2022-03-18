@@ -8,13 +8,9 @@ void conv::recieve_image(void) {
 	double image_in_flattened[IMG_param];//вектор, принимающий значения из порта
 	while(true){
 		if(image_recieved == sc_logic(1)){
-			while(true){
-				image_rdy.write(0);
 				wait(clk->posedge_event());
-			}
 		}
 		else{
-			
 			for (int i=0; i<IMG_param; i++){
 				image_rdy.write(1);
 				do{
@@ -26,31 +22,33 @@ void conv::recieve_image(void) {
 			for (int k = 0; k < N2_param; ++k) {
 				for (int j = 0; j < M2_param; j++){
 					for (int i = 0; i < C1_param; ++i) {
-						image_in[k][j][i] = image_in_flattened[k * M2_param * C1_param + j *C1_param + i]; //можно цикл по C1 сделать в конце
+						image_in[k][j][i] = 
+						image_in_flattened[k * M2_param * C1_param + j *C1_param + i]; //можно цикл по C1 сделать в конце
 					}
 				}
 			}
-			/*
 			cout << "[отладочный вывод]["<< this <<"] изображение:" << endl;
 			cout <<"размеры: "<< M2_param <<" "<< N2_param<<" " << C1_param<<endl;
 			for (int k = 0; k < N2_param; ++k) {
 				for (int j = 0; j < M2_param; j++){
 					for (int i = 0; i < C1_param; ++i) {
 					
-						cout <<std::setprecision(25)<< image_in[k][j][i] << " ";
+						cout <<std::fixed <<std::setprecision(35)<< image_in[k][j][i] << "\n ";
 					}
 					//cout << endl;
 				}
 				//cout << endl;
-				cout << endl;
 			}
+			cout << endl;
 			/**/
 			image_recieved = sc_logic(1);/*
 			cout<<"conv_2d ["<<this<<"]: IMG RECIEVED = "
 			<<image_recieved<<" "<<" KER RECIEVED = "<<kernel_recieved
 			<<" BIASES RECIEVED = "<<biases_recieved<<endl;/**/
+				
+			}	
 		}
-	}	
+	
 };/**/
 
 void conv::recieve_biases(void) {
@@ -207,7 +205,7 @@ void conv::convolution(void) {
 					}
 				}
 			}/**/
-			/*
+			cout<<this<<" CONV results\n";
 			for (int i = 0; i < CONV_ED_param; i++){
 				cout<<"["<<i<<"] = "<<convolved_mat[i]<<endl;
 			}/**/
@@ -225,17 +223,19 @@ void conv::send_to_dri_tb(void){
 	//conv_2d_result_tb.write(0);
 	conv_2d_result_vld_tb.write(0);
 	while(true){
-		if ( conv_done == sc_logic(1) ){
-			for (int i=0;i<CONV_ED_param;i++){
+		if ( conv_done == sc_logic(1) and conv_result_sent_tb == sc_logic(0)){
+			for (int i = 0; i < CONV_ED_param; i++){
 					conv_2d_result_vld_tb.write(1);
+					conv_2d_result_tb.write(convolved_mat[i]);
 					do{
 						wait(clk->posedge_event());
 					}while (!conv_2d_result_rdy_tb.read());
-					conv_2d_result_tb.write(convolved_mat[i]);
+					
 					conv_2d_result_vld_tb.write(0);
 				}	
 				conv_2d_result_tb.write(0);
 				cout<<"@" << sc_time_stamp() <<" "<<this<<" data transmitted"<<endl;
+				conv_result_sent_tb = sc_logic(1);
 		}
 		else{
 			wait(clk->posedge_event());
@@ -247,17 +247,20 @@ void conv::send_to_next_layer(void){
 	//conv_2d_result_next.write(0);
 	conv_2d_result_vld_next.write(0);
 	while(true){
-		if ( conv_done == sc_logic(1)){
+		if (conv_done == sc_logic(1) and conv_result_sent_next == sc_logic(0)){
 			for (int i=0;i<CONV_ED_param;i++){
 					conv_2d_result_vld_next.write(1);
+					conv_2d_result_next.write(convolved_mat[i]);
+					
 					do{
 						wait(clk->posedge_event());
 					}while (!conv_2d_result_rdy_next.read());
-					conv_2d_result_next.write(convolved_mat[i]);
 					conv_2d_result_vld_next.write(0);
+					
 				}	
-				conv_2d_result_next.write(0);
-				cout<<"@" << sc_time_stamp() <<" "<< this << " data transmitted"<<endl;
+			conv_2d_result_next.write(0);
+			cout<<"@" << sc_time_stamp() <<" "<< this << " data transmitted"<<endl;
+			conv_result_sent_next = sc_logic(1);
 		}
 		else{
 			wait(clk->posedge_event());
