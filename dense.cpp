@@ -37,12 +37,13 @@ void dense::recieve_input(void){
                 dense_input[i]=input.read();
                 input_rdy.write(0);
             }
-            input_recieved = sc_logic(1);
+            
             cout<<"@"<<sc_time_stamp()<<" dense input recieved ["<<this<<"]"<<endl;
             for(int i = 0; i < IN_param; i++){
                 cout<<dense_input[i]<<endl;
             }
             cout<<endl;/**/
+            input_recieved = sc_logic(1);
                 
         }
         else if(input_recieved == sc_logic(1)){
@@ -69,8 +70,7 @@ void dense::recieve_coeff(void){
                     coeff_arr[j][i] = coeff_flattened[DENSE_COEFF2_param * j + i];
                 }
             }
-            coeff_recieved = sc_logic(1);
-            cout<<"@"<<sc_time_stamp()<<" dense coeff recieved ["<<this<<"]"<<endl;
+            
 /*           for(int j = 0; j < DENSE_COEFF2; j++){
                 for(int i = 0; i < DENSE_COEFF1; i++){
                     cout<<coeff_arr[j][i]<<" ";
@@ -79,6 +79,8 @@ void dense::recieve_coeff(void){
             }
             cout<<endl<<endl<<endl<<endl;
             */
+           coeff_recieved = sc_logic(1);
+            cout<<"@"<<sc_time_stamp()<<" dense coeff recieved ["<<this<<"]"<<endl;
         }
         else{
             coeff_rdy.write(0);
@@ -134,9 +136,7 @@ void dense::dense_func(void) {
             if (func==2){
                 softmax(dense_result_arr, DENSE_COEFF2_param);
             }
-            cout<<"@" << sc_time_stamp() <<" dense layer calculated ["
-            <<this<<"]"<<endl;
-            dense_done = sc_logic(1);
+           
             /*
              cout<<"-------------------------------------------------------------"<<endl;
             for (int i = 0; i < DENSE_OUT1; i++) {
@@ -145,6 +145,9 @@ void dense::dense_func(void) {
             cout<<"-------------------------------------------------------------"<<endl;
             cout <<endl<< endl;*/ 
             /**/
+             cout<<"@" << sc_time_stamp() <<" dense layer calculated ["
+            <<this<<"]"<<endl;
+            dense_done = sc_logic(1);
         }
         else{
             wait(clk->posedge_event());
@@ -159,10 +162,10 @@ void dense::send_to_dri_tb(void){
         if(dense_done == sc_logic(1) and dense_result_sent_tb == sc_logic(0)){
             for(int i = 0; i < OUT_param; i++){
                 dense_result_vld_tb.write(1);
+                dense_result_tb.write(dense_result_arr[i]);
                 do{
                     wait(clk->posedge_event());
                 }while(!dense_result_rdy_tb.read());
-                dense_result_tb.write(dense_result_arr[i]);
                 dense_result_vld_tb.write(0);
             }
             dense_result_tb.write(0);

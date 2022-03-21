@@ -44,7 +44,7 @@ void max_pool::recieve_image(void){
             }
         }
         cout << endl;
-        
+        /**/
         /*
         cout << "[отладочный вывод][max_pooling] размеры кернела:"<< " P1 = " << P1<< " P2 = " << P2<< endl;
         cout << "размеры выходной матрицы: " << endl;
@@ -81,14 +81,12 @@ void max_pool::max_pooling(void) {
                     }
                 }
             }
-            max_pool_done = sc_logic(1);
-            cout<<"@"<<sc_time_stamp()<<" max_pooling done ["<<this<<"]\n";
-/*  
+              /*
             cout << "[отладочный вывод][max_pooling] результат" << endl;
             for (int k = 0; k < POOLOUT3; k++) {
                 for (int i = 0; i < POOLOUT2; i++) {
                     for (int j = 0; j < POOLOUT1; j++) {
-                        cout <<std::setprecision(3)<<std::fixed<< result[k][i][j]<<" ";
+                        cout <<std::setprecision(35)<<std::fixed<< result[k][i][j]<<" ";
                     }
                     cout << endl;
                 }
@@ -105,9 +103,13 @@ void max_pool::max_pooling(void) {
                     }
 				}
 			}
+            cout<<"отладочный вывод ["<<this<<"] max_pooling\n";
             for(int i =0; i < POOL_ED; i++){
                 cout<<"max_pooled["<<i<<"] = "<<max_pooled[i]<<endl;
-            }
+            }/**/
+            max_pool_done = sc_logic(1);
+            cout<<"@"<<sc_time_stamp()<<" max_pooling done ["<<this<<"]\n";
+
         }
         else{
             wait(clk->posedge_event());

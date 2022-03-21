@@ -50,7 +50,7 @@ void tb_driver::generate_kernel(void) {
         for (int i = 0; i < KER; i++){
             file >> kernel_flattened[i];
             
-        }
+        }/*
         cout<<"kernel_flattened\n";
         for (int i = 0; i < KER; i++){
             cout << kernel_flattened[i] << ' ';
@@ -93,7 +93,7 @@ void tb_driver::generate_image(void){
             
         }
         file.close();
-        
+        /*
             cout<<"------------image_flattened-----------"<<endl;
         for (int i=0;i<IMG;i++){
             cout<<std::fixed <<std::setprecision(35)<< image_flattened[i]<< " \n";
@@ -184,7 +184,7 @@ void tb_driver::generate_kernel2(void){
         for (int i = 0; i < KER2; i++){
             file >> kernel2_flattened[i];
             
-        }
+        }/*
         cout<<"kernel2_flattened\n";
         for (int i = 0; i < KER2; i++){
             cout << kernel2_flattened[i] << ' ';
@@ -299,13 +299,14 @@ void tb_driver::max_pool_2d_1_sink(void){
                     wait(clk->posedge_event());
                 }while (!max_pool_2d_1_result_vld.read());
                 max_pool_2d_1_result_flattened[i]=max_pool_2d_1_result.read();
+                max_pool_2d_1_result_rdy.write(0);
             }
             cout<<"@" << sc_time_stamp() <<" data from MAX_POOL_2D_1 recieved"<<endl;
             for (int i = 0; i < POOLOUT1; i++) {
                     for (int j = 0; j < POOLOUT2; j++) {
                         for (int k = 0; k < POOLOUT3; k++) {
                             max_pool_2d_1_result_arr[i][j][k] =
-                             max_pool_2d_1_result_flattened[i*POOLOUT2*POOLOUT3+j*POOLOUT3+k+1]; 
+                             max_pool_2d_1_result_flattened[i*POOLOUT2*POOLOUT3+j*POOLOUT3+k]; 
                         }
                     }
             } 

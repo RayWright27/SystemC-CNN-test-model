@@ -1,5 +1,4 @@
 #include "conv.h"
-#include "ReLU.h"
 #include <iomanip>
 void conv::recieve_image(void) {
 	//инициализируем хэндшейк
@@ -26,7 +25,7 @@ void conv::recieve_image(void) {
 						image_in_flattened[k * M2_param * C1_param + j *C1_param + i]; //можно цикл по C1 сделать в конце
 					}
 				}
-			}
+			}/*
 			cout << "[отладочный вывод]["<< this <<"] изображение:" << endl;
 			cout <<"размеры: "<< M2_param <<" "<< N2_param<<" " << C1_param<<endl;
 			for (int k = 0; k < N2_param; ++k) {
@@ -41,7 +40,8 @@ void conv::recieve_image(void) {
 			}
 			cout << endl;
 			/**/
-			image_recieved = sc_logic(1);/*
+			image_recieved = sc_logic(1);
+            cout<<"@"<<sc_time_stamp()<<" conv input recieved ["<<this<<"]"<<endl;/*
 			cout<<"conv_2d ["<<this<<"]: IMG RECIEVED = "
 			<<image_recieved<<" "<<" KER RECIEVED = "<<kernel_recieved
 			<<" BIASES RECIEVED = "<<biases_recieved<<endl;/**/
@@ -78,6 +78,7 @@ void conv::recieve_biases(void) {
 				cout<<biases_in[k]<<endl;
 		}/**/
 		biases_recieved=sc_logic(1);
+		cout<<"@"<<sc_time_stamp()<<" conv biases recieved ["<<this<<"]"<<endl;
 	}
 };
 /**/ 
@@ -127,6 +128,7 @@ void conv::recieve_kernel(void) {
 			cout << endl;
 		}/**/
 		kernel_recieved=sc_logic(1);
+		cout<<"@"<<sc_time_stamp()<<" conv kernels recieved ["<<this<<"]"<<endl;
 		
 	}
 };
@@ -190,8 +192,7 @@ void conv::convolution(void) {
 			}
 			cout << endl;   
          /**/   
-			conv_done = sc_logic(1);
-			cout << "@" << sc_time_stamp() <<" "<<this<<" layer calculated"<<endl;
+			
 			/*
 			cout << "размеры выходной матрицы: " << endl;
 			cout << "M3_param= " << M3_param << " N3_param= " << N3_param << " " << endl << endl;
@@ -204,11 +205,13 @@ void conv::convolution(void) {
 						
 					}
 				}
-			}/**/
+			}/*
 			cout<<this<<" CONV results\n";
 			for (int i = 0; i < CONV_ED_param; i++){
 				cout<<"["<<i<<"] = "<<convolved_mat[i]<<endl;
 			}/**/
+			conv_done = sc_logic(1);
+			cout << "@" << sc_time_stamp() <<" "<<this<<" layer calculated"<<endl;
 		}
 		else{
 			//wait(clk->posedge_event());
