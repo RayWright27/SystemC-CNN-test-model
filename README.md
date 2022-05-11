@@ -11,3 +11,4 @@ All interfaces are 1d vectors, so on inputs/output ports of some modules 1d vect
 Convolution is realised with element-wise, for-loop multiplication of kernel and image instead of multiplication of matricies using Toepliz matricies. This is the issue to be solved.
 
 The model **does not** contain kernel and bias values from the original model.
+upd: description is **outdated**
